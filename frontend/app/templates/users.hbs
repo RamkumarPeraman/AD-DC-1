@@ -1,0 +1,61 @@
+<div class="user-grid">
+  <div class="head_name"></div>
+  <h1 class="heading">users</h1>
+  <div class="search-options">
+    <div class="search-wrapper">
+      <img src="../asset/search.png" alt="user" class="search_icon" />
+      <input type="text" id="search" name="search" placeholder="Search by user..." value={{this.searchQuery}} {{on "input" this.updateSearchQuery}} />
+    </div>
+  </div>
+
+  <div class="sort-options">
+    <label for="sort">Sort by:</label>
+    <select id="sort" name="sort" {{on "change" this.updateSortBy}}>
+      <option value="asc-desc">Ascending - Descending</option>
+      <option value="desc-asc">Descending - Ascending</option>
+      <option value="new-old">New - Old</option>
+      <option value="old-new">Old - New</option>
+    </select>
+  </div>
+
+  <div class="tiles">
+    {{#each this.users as |user|}}
+      <div class="tile">
+        <a href="#" {{on "click" (fn this.showUserDetails user.name)}}>
+          <img src="../asset/user.png" alt="user" class="user_icon" /><br>{{user.name}}
+        </a>
+      </div>
+    {{else}}
+      <h3 class="not_found">No users found</h3>
+      <img src="../asset/empty.png" alt="No users" class="empty" />
+    {{/each}}
+  </div>
+
+  {{#if this.selectedUser}}
+    <div class="popup">
+      <div class="popup-content">
+        <button class="close-button" type="button" {{on "click" this.closePopup}}>X</button>
+        <p>
+          <strong>User Name:</strong>
+          <i>{{this.selectedUser.name}}</i>
+        </p>
+        <p>
+          <strong>Description:</strong>
+          <i>{{this.selectedUser.description}}</i>
+        </p>
+        <p>
+          <strong>Mail:</strong>
+          <i>{{this.selectedUser.mail}}</i>
+        </p>
+        <p>
+          <strong>telephoneNumber:</strong>
+          <i>{{this.selectedUser.telephoneNumber}}</i>
+        </p>        
+        <p>
+          <strong>Address:</strong>
+          <i>{{this.selectedUser.address}}</i>
+        </p>
+      </div>
+    </div>
+  {{/if}}
+</div> 

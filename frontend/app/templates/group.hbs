@@ -1,0 +1,70 @@
+<div class="group-grid">
+  <div class="head_name"></div>
+  <h1 class="heading">Groups</h1>
+
+  <div class="search-options">
+    <div class="search-wrapper">
+      <img src="../asset/search.png" alt="Group" class="search_icon" />
+      <input type="text" id="search" name="search" placeholder="Search by Group..." value={{this.searchQuery}} {{on "input" this.updateSearchQuery}} />
+    </div>
+  </div>
+
+  <div class="sort-options">
+    <label for="sort">Sort by:</label>
+    <select id="sort" name="sort" {{on "change" this.updateSortBy}}>
+      <option value="asc-desc">Ascending - Descending</option>
+      <option value="desc-asc">Descending - Ascending</option>
+      <option value="new-old">New - Old</option>
+      <option value="old-new">Old - New</option>
+    </select>
+  </div>
+
+  {{!-- <div class="total-count"> --}}
+    <p class="total-count">Total : <b>{{this.totalCount}}</b></p>
+  {{!-- </div> --}}
+
+  <div class="tiles">
+    {{#each this.groups as |group|}}
+      <div class="tile">
+        <a href="#" {{on "click" (fn this.showGroupDetails group.name)}}>
+          <img src="../asset/group.png" alt="Group" class="group_icon" /><br>{{group.name}}
+        </a>
+      </div>
+    {{else}}
+      <h3 class="not_found">No groups found</h3>
+      <img src="../asset/empty.png" alt="No Groups" class="empty" />
+    {{/each}}
+  </div>
+
+  {{#if this.selectedGroup}}
+    <div class="popup">
+      <div class="popup-content">
+        <button class="close-button" type="button" {{on "click" this.closePopup}}>X</button>
+        <p>
+          <strong>Group Name:</strong>
+          {{#if this.selectedGroup.name}}
+            <i>{{this.selectedGroup.name}}</i>
+          {{else}}
+            <i>No Group Name found</i>
+          {{/if}}
+        </p>
+        <p>
+          <strong>Description:</strong>
+          {{#if this.selectedGroup.description}}
+            <i>{{this.selectedGroup.description}}</i>
+          {{else}}
+            <i>No Description found</i>
+          {{/if}}
+        </p>
+        <p>
+          <strong>Mail:</strong>
+          {{#if this.selectedGroup.mail}}
+            <i>{{this.selectedGroup.mail}}</i>
+          {{else}}
+            <i>No mail found</i>
+          {{/if}}
+        </p>
+      </div>
+    </div>
+  {{/if}}
+</div>

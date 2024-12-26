@@ -1,0 +1,11 @@
+<nav class="sidebar">
+  <ul>
+    {{!-- <img src="../asset/diagram.png" alt="Home" class="act_icon" /> --}}
+    <li class={{if (eq @currentRoute "home") "active"}}>  <LinkTo @route="home"><img src="../asset/house.png" alt="Home" class="home_icon" /><br>&nbsp;Home</LinkTo></li>
+    <li class={{if (eq @currentRoute "users") "active"}}><LinkTo @route="users"><img src="../asset/users.png" alt="Home" class="users_icon" /><br>&nbsp;Users</LinkTo></li>
+    <li class={{if (eq @currentRoute "computers") "active"}}><LinkTo @route="computers"><img src="../asset/computer.png" alt="Home" class="comp_icon" /><br>Computers</LinkTo></li>
+    <li class={{if (eq @currentRoute "ou") "active"}}><LinkTo @route="ou"><img src="../asset/ou.png" alt="Home" class="ou_icon" /><br>&nbsp;OU</LinkTo></li>
+    <li class={{if (eq @currentRoute "group") "active"}}><LinkTo @route="group"><img src="../asset/groups.png" alt="Home" class="groups_icon" /><br>&nbsp;Group</LinkTo></li>
+    <li class={{if (eq @currentRoute "deleted-objects") "active"}}><LinkTo @route="deleted-objects"><img src="../asset/rb.png" alt="Home" class="groups_icon" /><br>Recycle Bin</LinkTo></li>
+  </ul>
+</nav>
