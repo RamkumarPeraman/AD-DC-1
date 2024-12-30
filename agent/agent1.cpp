@@ -13,7 +13,6 @@ using namespace std;
 
 string URL = "http://localhost:8080/backend_war_exploded";
 
-// Global variables
 vector<string> ou_names;
 time_t lastCheckedTime = 0;
 char* attribute; 
@@ -38,7 +37,6 @@ void sendDataToServlet(const string& servletUrl, const string& postData) {
         curl_easy_setopt(curl, CURLOPT_URL, servletUrl.c_str());
         curl_easy_setopt(curl, CURLOPT_POSTFIELDS, postData.c_str());
         res = curl_easy_perform(curl);
-
         if(res != CURLE_OK) {
             cerr << "CURL failed: " << curl_easy_strerror(res) << endl;
         }
@@ -47,7 +45,7 @@ void sendDataToServlet(const string& servletUrl, const string& postData) {
     curl_global_cleanup();
 
 }
-void ldapBind() {
+void ldapBind(){
     rc = ldap_initialize(&ld, ldap_server);
     if (rc != LDAP_SUCCESS) {
         cerr << "Failed to initialize LDAP connection: " << ldap_err2string(rc) << endl;
@@ -58,7 +56,6 @@ void ldapBind() {
     BerValue cred;
     cred.bv_val = (char*)password;
     cred.bv_len = strlen(password);
-
     rc = ldap_sasl_bind_s(ld, username, LDAP_SASL_SIMPLE, &cred, NULL, NULL, NULL);
     if (rc != LDAP_SUCCESS) {
         cerr << "LDAP bind failed: " << ldap_err2string(rc) << endl;
@@ -144,7 +141,6 @@ void fetchUserData(const char* base_dn, const char* filter){// Fetch user data
         userData ="";
     }
 }
-
 void processGroupEntry(LDAP* ld, LDAPMessage* entry) {
     string groupName, groupDescription,mail;
     struct berval** values = ldap_get_values_len(ld, entry, "cn");
@@ -182,27 +178,18 @@ void fetchGroupData(const char* base_dn) {
     const char* group_attributes[] = {"cn", "description", "whenChanged","mail", NULL};
     dataTraverse(base_dn, combinedFilter.c_str(), group_attributes, processGroupEntry);
 }
-
 void processComputerEntry(LDAP* ld, LDAPMessage* entry) {
      string computerName, computerDescription;
-    
-    // Fetch computer name and description
     struct berval** values = ldap_get_values_len(ld, entry, "cn");
     dataAddToVal(values, computerName);
     values = ldap_get_values_len(ld, entry, "description");
-    dataAddToVal(values, computerDescription);
-    
-    // Check if computerName and computerDescription are not empty
+    dataAddToVal(values, computerDescription);    
     if (!computerName.empty() && !computerDescription.empty()) {
-        // Prepare JSON data for the computer
          string computerPostData = "{\"computerName\":\"" + computerName + "\", \"description\":\"" + computerDescription + "\"},";
-        
-        // Append the computer data to the global variable
         computerData += computerPostData;
         servletSend = false;
     }
 }
-
 // Function to fetch computer data from LDAP
 void fetchComputerData(const char* base_dn) {
      string combinedFilter;
@@ -229,7 +216,6 @@ void fetchComputerData(const char* base_dn) {
         computerData = "";
     }
 }
-
 void processOUEntry(LDAP* ld, LDAPMessage* entry) {
     string ouName, ouDescription,street, pobox, city, state, postalCode, country;
     struct berval** values = ldap_get_values_len(ld, entry, "ou");
@@ -292,7 +278,6 @@ void processOUEntry(LDAP* ld, LDAPMessage* entry) {
         }
     }
 }
-
 void fetchOUData(const char* base_dn) {
     string combinedFilter;
     if (!initialFetch) {
@@ -304,7 +289,6 @@ void fetchOUData(const char* base_dn) {
     const char* ou_attributes[] = {"ou", "description", "whenChanged", "streetAddress", "postOfficeBox", "l", "st", "postalCode", "co", NULL};
     dataTraverse(base_dn, combinedFilter.c_str(), ou_attributes, processOUEntry);
 }
-
 void processDeletedObjectEntry(LDAP* ld, LDAPMessage* entry) {
     string objectType, objectName, objectDescription;
     struct berval** values = ldap_get_values_len(ld, entry, "objectClass");
@@ -335,7 +319,6 @@ void processDeletedObjectEntry(LDAP* ld, LDAPMessage* entry) {
     dataAddToVal(values, objectDescription);
     time_t dltLastModTime = getLastModificationTime(ld, entry);
     string dn = ldap_get_dn(ld, entry);
-
     if (initialFetch || (dltLastModTime > lastCheckedTime && processedEntries.find(dn) == processedEntries.end())) {
         if (!objectType.empty() && !objectName.empty() && !objectDescription.empty()) {
             // Trim the "DEL" marker and UUID from the objectName
@@ -446,14 +429,14 @@ void fetchOu(){
 
 int main(){
     ldapBind(); 
-    // fetchOu();
+    fetchOu();
     while(true){
-        // fetchDeletedObjects(dlt_base_dn);
+        fetchDeletedObjects(dlt_base_dn);
         fetchFromUsers(user_base_dn);
-        // fetchFromComputers(comp_base_dn);
-        // for(string ou_base_dn : ou_names){
-        //     fetchFromOU(ou_base_dn.c_str());
-        // }
+        fetchFromComputers(comp_base_dn);
+        for(string ou_base_dn : ou_names){
+            fetchFromOU(ou_base_dn.c_str());
+        }
         lastCheckedTime = time(nullptr);
         initialFetch = false;        
         sleep(60);

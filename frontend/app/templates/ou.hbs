@@ -1,7 +1,29 @@
+
 <div class="ou-grid">
+    <div class="head_name"></div>
   <h1 class="heading">Organizational Units</h1>
+
+  <div class="search-options">
+    <div class="search-wrapper">
+      <img src="../asset/search.png" alt="Group" class="search_icon" />
+      <input type="text" id="search" name="search" placeholder="Search by Group..." value={{this.searchQuery}} {{on "input" this.updateSearchQuery}} />
+    </div>
+  </div>
+
+  <div class="sort-options">
+    <label for="sort">Sort by:</label>
+    <select id="sort" name="sort" {{on "change" this.updateSortBy}}>
+      <option value="asc-desc">Ascending - Descending</option>
+      <option value="desc-asc">Descending - Ascending</option>
+      <option value="new-old">New - Old</option>
+      <option value="old-new">Old - New</option>
+    </select>
+  </div>
+
+  <p class="total-count">Total: <b>{{this.totalCount}}</b></p>
+
   <div class="tiles">
-    {{#each this.ous as |ou|}}
+    {{#each this.filteredOUs as |ou|}}
       <div class="tile">
         <a href="#" {{on "click" (fn this.showOUDetails ou)}}>
           <img src="../asset/ou.png" alt="Organizational Unit Icon" class="ou_icon o_icon" />

@@ -4,9 +4,9 @@
     <h1 class="heading">Active Directory</h1>
     <div class="tiles">
     <div class="tile"><a class={{if (eq @currentRoute "users") "active"}}><LinkTo @route="users"><img src="../asset/users.png" alt="Home" class="user_icon u_icon" /><br> Users</LinkTo></a></div>
+    <div class="tile"><a class={{if (eq @currentRoute "group") "active"}}><LinkTo @route="group"><img src="../asset/groups.png" alt="Home" class="groups_icon g_icon" /><br> Group</LinkTo></a></div>
     <div class="tile"><a class={{if (eq @currentRoute "computers") "active"}}><LinkTo @route="computers"><img src="../asset/computer.png" alt="Home" class="comp_icon c_icon" /><br> Computers</LinkTo></a></div>    
     <div class="tile"><a class={{if (eq @currentRoute "ou") "active"}}><LinkTo @route="ou"><img src="../asset/ou.png" alt="Home" class="ou_icon o_icon" /><br> Organizational Unit</LinkTo></a></div>
-    <div class="tile"><a class={{if (eq @currentRoute "group") "active"}}><LinkTo @route="group"><img src="../asset/groups.png" alt="Home" class="groups_icon g_icon" /><br> Group</LinkTo></a></div>
     <div class="tile"><a class={{if (eq @currentRoute "deleted-objects") "active"}}><LinkTo @route="deleted-objects"><img src="../asset/bin.png" alt="Home" class="groups_icon g_icon" /><br> Bin</LinkTo></a></div>
     </div>
 </div>

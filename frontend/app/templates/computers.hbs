@@ -1,6 +1,7 @@
 <div class="computer-grid">
   <div class="head_name"></div>
   <h1 class="heading">computers</h1>
+
   <div class="search-options">
     <div class="search-wrapper">
       <img src="../asset/search.png" alt="computer" class="search_icon" />
@@ -18,11 +19,13 @@
     </select>
   </div>
 
+  <p class="total-count">Total : <b>{{this.totalCount}}</b></p>
+
   <div class="tiles">
     {{#each this.computers as |computer|}}
       <div class="tile">
         <a href="#" {{on "click" (fn this.showComputerDetails computer.name)}}>
-          <img src="../asset/computer.png" alt="computer" class="computer_icon" /><br>{{computer.name}}
+          <img src="../asset/computer.png" alt="computer" class="g_icon" /><br>{{computer.name}}
         </a>
       </div>
     {{else}}
@@ -52,11 +55,11 @@
           {{/if}}
         </p>
         <p>
-          <strong>location:</strong>
-          {{#if this.selectedComputer.location}}
-            <i>{{this.selectedComputer.location}}</i>
+          <strong>Mail:</strong>
+          {{#if this.selectedComputer.mail}}
+            <i>{{this.selectedComputer.mail}}</i>
           {{else}}
-            <i>No location found</i>
+            <i>No mail found</i>
           {{/if}}
         </p>
       </div>

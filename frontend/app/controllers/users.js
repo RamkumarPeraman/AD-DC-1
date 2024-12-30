@@ -7,6 +7,7 @@ export default class UserController extends Controller {
   @tracked selectedUser = null;
   @tracked sortBy = '';
   @tracked searchQuery = '';
+  @tracked totalCount = 0;
 
   @action
   async fetchUser(params = {}) {
@@ -19,10 +20,13 @@ export default class UserController extends Controller {
       if (!response.ok) {
         throw new Error(`Failed to fetch users: ${response.statusText}`);
       }
-      this.users = await response.json();
+      const users = await response.json();
+      this.users = users;
+      this.totalCount = users.length;
     } catch (error) {
       console.error('Error fetching users:', error);
       this.users = [];
+      this.totalCount = 0;
     }
   }
 

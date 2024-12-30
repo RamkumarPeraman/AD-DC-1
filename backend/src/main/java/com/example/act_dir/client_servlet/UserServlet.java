@@ -14,34 +14,58 @@ import java.sql.SQLException;
 import com.example.act_dir.db.DBConnection;
 
 public class UserServlet extends HttpServlet {
-
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // Set CORS headers
         response.setHeader("Access-Control-Allow-Origin", "*");
         response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
         response.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-
-        // Handle preflight requests
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
             response.setStatus(HttpServletResponse.SC_OK);
             return;
         }
-
         response.setContentType("application/json");
 
+        String searchQuery = request.getParameter("search");
+        String sortBy = request.getParameter("sortBy");
+        if (sortBy == null) {
+            sortBy = "name ASC";
+        } else {
+            switch (sortBy) {
+                case "asc-desc":
+                    sortBy = "name ASC";
+                    break;
+                case "desc-asc":
+                    sortBy = "name DESC";
+                    break;
+                case "new-old":
+                    sortBy = "updated_time DESC";
+                    break;
+                case "old-new":
+                    sortBy = "updated_time ASC";
+                    break;
+            }
+        }
+
         try (PrintWriter out = response.getWriter()) {
-            String jsonData = getUserNamesAsJson();
+            String jsonData = getUserNamesAsJson(searchQuery, sortBy);
             out.write(jsonData);
         }
     }
 
-    private String getUserNamesAsJson() {
+    private String getUserNamesAsJson(String searchQuery, String sortBy) {
         StringBuilder jsonData = new StringBuilder("[");
-        String query = "SELECT name FROM act WHERE type = 'User' AND isDeleted = 'NO'";
+        StringBuilder queryBuilder = new StringBuilder("SELECT name FROM act WHERE type = 'User' AND isDeleted = 'NO'");
+        if (searchQuery != null && !searchQuery.isEmpty()) {
+            queryBuilder.append(" AND name LIKE ?");
+        }
+        queryBuilder.append(" ORDER BY ").append(sortBy);
+
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(query);
-             ResultSet rs = pstmt.executeQuery()) {
+             PreparedStatement pstmt = conn.prepareStatement(queryBuilder.toString())) {
+            if (searchQuery != null && !searchQuery.isEmpty()) {
+                pstmt.setString(1, "%" + searchQuery + "%");
+            }
+            ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
                 jsonData.append("{\"name\":\"").append(rs.getString("name")).append("\"},");
             }

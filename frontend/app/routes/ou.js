@@ -8,7 +8,7 @@ export default class OURoute extends Route {
         throw new Error(`Failed to fetch organizational units: ${response.statusText}`);
       }
       const data = await response.json();
-      return { ous: data };
+      return { ous: data.map(ou => ({ ...ou, createdDate: new Date() })) }; // Example: Adding a createdDate property
     } catch (error) {
       console.error('Error fetching organizational units:', error);
       return { ous: [] };

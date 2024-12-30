@@ -7,22 +7,22 @@ export default class ComputerController extends Controller {
   @tracked selectedComputer = null;
   @tracked sortBy = '';
   @tracked searchQuery = '';
+  @tracked totalCount = 0;
 
   @action
-  async fetchComputer(params = {}) {
-    params.sortBy = this.sortBy;
-    params.search = this.searchQuery;
-    const query = new URLSearchParams(params).toString();
-    const url = `http://localhost:8080/backend_war_exploded/ComputerServlet?${query}`;
+  async fetchComputers() {
     try {
-      const response = await fetch(url);
+      const response = await fetch(`http://localhost:8080/backend_war_exploded/ComputerServlet?search=${this.searchQuery}&sortBy=${this.sortBy}`);
       if (!response.ok) {
         throw new Error(`Failed to fetch computers: ${response.statusText}`);
       }
-      this.computers = await response.json();
+      const data = await response.json();
+      this.computers = data.computers;
+      this.totalCount = data.totalCount;
     } catch (error) {
       console.error('Error fetching computers:', error);
       this.computers = [];
+      this.totalCount = 0;
     }
   }
 

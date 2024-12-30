@@ -7,15 +7,18 @@ export default class UserRoute extends Route {
       if (!response.ok) {
         throw new Error(`Failed to fetch users: ${response.statusText}`);
       }
-      return await response.json();
+      const users = await response.json();
+      const totalCount = users.length;
+      return { users, totalCount };
     } catch (error) {
       console.error('Error fetching users:', error);
-      return [];
+      return { users: [], totalCount: 0 };
     }
   }
 
   setupController(controller, model) {
     super.setupController(controller, model);
-    controller.users = model;
+    controller.users = model.users;
+    controller.totalCount = model.totalCount;
   }
 }

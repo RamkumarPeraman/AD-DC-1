@@ -21,10 +21,6 @@ public class GroupServlet extends HttpServlet {
         response.setHeader("Access-Control-Allow-Origin", "*");
         response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
         response.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-//        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
-//            response.setStatus(HttpServletResponse.SC_OK);
-//            return;
-//        }
         if (request.getMethod().equals("OPTIONS")) {
             response.setStatus(HttpServletResponse.SC_ACCEPTED);
             return;
