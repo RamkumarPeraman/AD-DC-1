@@ -5,11 +5,8 @@
 #include "../ldap_config.h"
 
 using namespace std;
-
-
 LDAP* ld;
 int rc;
-
 void ldapBind() {
     rc = ldap_initialize(&ld, ldap_server);
     if (rc != LDAP_SUCCESS) {
@@ -29,17 +26,15 @@ void ldapBind() {
         exit(EXIT_FAILURE);
     }
 }
-
 string getGroupDetails(const string& groupName) {
     string filter = "(cn=" + groupName + ")";
     LDAPMessage* result = nullptr;
     rc = ldap_search_ext_s(ld, comp_base_dn, LDAP_SCOPE_SUBTREE, filter.c_str(), NULL, 0, NULL, NULL, NULL, 0, &result);
-    if (rc != LDAP_SUCCESS) {
+    if(rc != LDAP_SUCCESS) {
         cerr << "LDAP search failed: " << ldap_err2string(rc) << endl;
         ldap_msgfree(result);
         return "{}";
     }
-
     LDAPMessage* entry = ldap_first_entry(ld, result);
     if (entry == NULL) {
         cerr << "No entry found for group: " << groupName << endl;
@@ -72,11 +67,10 @@ string getGroupDetails(const string& groupName) {
 }
 
 int main(int argc, char* argv[]) {
-    if (argc != 2) {
+    if(argc != 2) {
         cerr << "Usage: " << argv[0] << " <groupName>" << endl;
         return 1;
     }
-
     string groupName = argv[1];
     ldapBind();
     string groupDetails = getGroupDetails(groupName);

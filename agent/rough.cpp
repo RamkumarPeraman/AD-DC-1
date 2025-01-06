@@ -70,36 +70,37 @@ string getLDAPTimeString(time_t rawtime) {
     strftime(buffer, sizeof(buffer), "%Y%m%d%H%M%S.0Z", timeinfo);
     return string(buffer);
 }
-// Function to parse the date and time string
-bool parseTime(const char* str, struct tm& tm) {
-    return sscanf(str, "%4d%2d%2d%2d%2d%2d",
-                  &tm.tm_year, &tm.tm_mon, &tm.tm_mday,
-                  &tm.tm_hour, &tm.tm_min, &tm.tm_sec) == 6;
-}
-
-// Function to get the last modification time
 time_t getLastModificationTime(LDAP* ld, LDAPMessage* entry) {
+    char* attribute;
+    LDAPMessage* result;
     BerElement* ber;
-    struct berval** values = ldap_get_values_len(ld, entry, "modifyTimestamp");
-    if (values == NULL) {
-        return 0; // Handle error: No modification timestamp found
-    }
-
     struct tm tm;
-    memset(&tm, 0, sizeof(struct tm));
-    tm.tm_isdst = -1; // Not using daylight saving time
+    time_t t;
 
-    if (parseTime(values[0]->bv_val, tm)) {
-        // Adjust year and month values
-        tm.tm_year -= 1900;
-        tm.tm_mon -= 1;
-        time_t result = mktime(&tm);
-        ldap_value_free_len(values);
-        return result;
-    } else {
-        ldap_value_free_len(values);
-        return 0; // Handle error: Failed to parse time
+    for (attribute = ldap_first_attribute(ld, entry, &ber);
+         attribute != NULL;
+         attribute = ldap_next_attribute(ld, entry, ber)) {
+        if (strcmp(attribute, "modifyTimestamp") == 0) {
+            BerValue** values = ldap_get_values_len(ld, entry, attribute);
+            if (values != NULL) {
+                // Parse the date-time string manually using sscanf
+                if (sscanf(values[0]->bv_val, "%4d%2d%2d%2d%2d%2d", 
+                           &tm.tm_year, &tm.tm_mon, &tm.tm_mday, 
+                           &tm.tm_hour, &tm.tm_min, &tm.tm_sec) == 6) {
+                    tm.tm_year -= 1900; // Year since 1900
+                    tm.tm_mon -= 1;     // Month [0, 11]
+                    tm.tm_isdst = -1;   // Not set by sscanf
+                    t = mktime(&tm);
+                    ldap_value_free_len(values);
+                    return t;
+                }
+                ldap_value_free_len(values);
+            }
+        }
+        ldap_memfree(attribute);
     }
+    ber_free(ber, 0);
+    return static_cast<time_t>(-1);
 }
 void dataTraverse(const char* base_dn, const char* filter, const char* attributes[], void (*processEntry)(LDAP* ld, LDAPMessage* entry)) {
     LDAPMessage* result = nullptr;
@@ -401,15 +402,15 @@ void fetchDeletedObjects(const char* base_dn) {
 
 
 void fetchFromUsers(const char* base_dn){//fetch the data from Users
-        fetchUserData(base_dn, "(objectClass=user)"); 
+        // fetchUserData(base_dn, "(objectClass=user)"); 
         fetchGroupData(base_dn);
-        fetchComputerData(base_dn);
+        // fetchComputerData(base_dn);
 
 }
 void fetchFromComputers (const char* base_dn){// function to fetc the data from the computer
         fetchComputerData(base_dn);
-        fetchUserData(base_dn, "(objectClass=user)"); 
-        fetchGroupData(base_dn);
+        // fetchUserData(base_dn, "(objectClass=user)"); 
+        // fetchGroupData(base_dn);
 }
 void fetchFromOU(const char* base_dn){// function to fetch data from OU's
         fetchOUData(base_dn);
@@ -449,14 +450,14 @@ void fetchOu(){
 }
 int main(){
     ldapBind(); 
-    fetchOu();
+    // fetchOu();
     while(true){
         fetchDeletedObjects(dlt_base_dn);
-        fetchFromUsers(user_base_dn);
-        fetchFromComputers(comp_base_dn);
-        for(string ou_base_dn : ou_names){
-            fetchFromOU(ou_base_dn.c_str());
-        }
+        // fetchFromUsers(user_base_dn);
+        // fetchFromComputers(comp_base_dn);
+        // for(string ou_base_dn : ou_names){
+        //     fetchFromOU(ou_base_dn.c_str());
+        // }
         lastCheckedTime = time(nullptr);
         initialFetch = false;        
         sleep(60);
