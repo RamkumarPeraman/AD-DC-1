@@ -145,4 +145,45 @@
         <url-pattern>/DeletedObjDataServlet/*</url-pattern>
     </servlet-mapping>
 
+
+    <!--    ################################################-->
+    <servlet>
+        <servlet-name>AddUserToGroupServlet</servlet-name>
+        <servlet-class>com.example.act_dir.ad_usr.AddUserToGroupServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AddUserToGroupServlet</servlet-name>
+        <url-pattern>/AddUserToGroupServlet/*</url-pattern>
+    </servlet-mapping>
+
+
+
+    <servlet>
+        <servlet-name>CreateGroupServlet</servlet-name>
+        <servlet-class>com.example.act_dir.create_servlet.CreateGroupServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>CreateGroupServlet</servlet-name>
+        <url-pattern>/CreateGroupServlet/*</url-pattern>
+    </servlet-mapping>
+
+
+    <servlet>
+        <servlet-name>CreateUserServlet</servlet-name>
+        <servlet-class>com.example.act_dir.create_servlet.CreateUserServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>CreateUserServlet</servlet-name>
+        <url-pattern>/CreateUserServlet/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>CreateComputerServlet</servlet-name>
+        <servlet-class>com.example.act_dir.create_servlet.CreateComputerServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>CreateComputerServlet</servlet-name>
+        <url-pattern>/CreateComputerServlet/*</url-pattern>
+    </servlet-mapping>
+
 </web-app>

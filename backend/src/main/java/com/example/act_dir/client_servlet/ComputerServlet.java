@@ -41,12 +41,10 @@ public class ComputerServlet extends HttpServlet {
         StringBuilder jsonData = new StringBuilder("{ \"computers\": [");
         String baseQuery = "SELECT name FROM act WHERE type = 'Computer' AND isDeleted = 'NO'";
         String countQuery = "SELECT COUNT(*) as total_count FROM act WHERE type = 'Computer' AND isDeleted = 'NO'";
-
         if (search != null && !search.isEmpty()) {
             baseQuery += " AND name LIKE ?";
             countQuery += " AND name LIKE ?";
         }
-
         if ("asc-desc".equalsIgnoreCase(sortBy)) {
             baseQuery += " ORDER BY name ASC";
         } else if ("desc-asc".equalsIgnoreCase(sortBy)) {
@@ -56,19 +54,15 @@ public class ComputerServlet extends HttpServlet {
         } else if ("old-new".equalsIgnoreCase(sortBy)) {
             baseQuery += " ORDER BY updated_time ASC";
         }
-
         int totalCount = 0;
         int resultCount = 0;
-
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement countStmt = conn.prepareStatement(countQuery);
              PreparedStatement baseStmt = conn.prepareStatement(baseQuery)) {
-
             if (search != null && !search.isEmpty()) {
                 countStmt.setString(1, "%" + search + "%");
                 baseStmt.setString(1, "%" + search + "%");
             }
-
             try (ResultSet countRs = countStmt.executeQuery()) {
                 if (countRs.next()) {
                     totalCount = countRs.getInt("total_count");
@@ -93,3 +87,6 @@ public class ComputerServlet extends HttpServlet {
         return jsonData.toString();
     }
 }
+
+
+

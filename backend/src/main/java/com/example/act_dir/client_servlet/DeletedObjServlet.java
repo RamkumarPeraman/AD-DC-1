@@ -34,10 +34,9 @@ public class DeletedObjServlet extends HttpServlet {
             data = jsonReader.readObject();
         } catch (Exception e) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("Invalid JSON format");
+//            response.getWriter().write("Invalid JSON format");
             return;
         }
-
         System.out.println(data);
         deletedDataList.add(data);
         response.setStatus(HttpServletResponse.SC_OK);

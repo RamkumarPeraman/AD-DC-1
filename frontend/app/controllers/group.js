@@ -8,10 +8,20 @@ export default class GroupController extends Controller {
   @tracked sortBy = '';
   @tracked searchQuery = '';
   @tracked totalCount = 0;
+  @tracked newGroupName = '';
+  @tracked newGroupDescription = '';
+  @tracked newGroupMail = '';
+  @tracked isNewGroupPopupVisible = false;
+  @tracked isAddUserPopupVisible = false;
+  @tracked userName = '';
+  @tracked groupName = '';
+  @tracked addUserError = '';
+  @tracked addUserSuccess = '';
+  @tracked createGroupError = '';
 
   constructor() {
     super(...arguments);
-    this.fetchGroups(); 
+    this.fetchGroups();
   }
 
   @action
@@ -20,6 +30,7 @@ export default class GroupController extends Controller {
     params.search = this.searchQuery;
     const query = new URLSearchParams(params).toString();
     const url = `http://localhost:8080/backend_war_exploded/GroupServlet?${query}`;
+    
     try {
       const response = await fetch(url);
       if (!response.ok) {
@@ -64,5 +75,138 @@ export default class GroupController extends Controller {
   updateSearchQuery(event) {
     this.searchQuery = event.target.value;
     this.fetchGroups();
+  }
+
+  @action
+  openNewGroupPopup() {
+    this.isNewGroupPopupVisible = true;
+  }
+
+  @action
+  closeNewGroupPopup() {
+    this.isNewGroupPopupVisible = false;
+    this.newGroupName = '';
+    this.newGroupDescription = '';
+    this.newGroupMail = '';
+    this.createGroupError = '';
+  }
+
+  @action
+  updateNewGroupName(event) {
+    this.newGroupName = event.target.value;
+  }
+
+  @action
+  updateNewGroupDescription(event) {
+    this.newGroupDescription = event.target.value;
+  }
+
+  @action
+  updateNewGroupMail(event) {
+    this.newGroupMail = event.target.value;
+  }
+
+  @action
+  async createGroup(event) {
+    event.preventDefault();
+
+    if (!this.newGroupName || !this.newGroupDescription || !this.newGroupMail) {
+      alert('All fields are required!');
+      return;
+    }
+
+    try {
+      const response = await fetch('http://localhost:8080/backend_war_exploded/CreateGroupServlet', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          groupName: this.newGroupName,
+          description: this.newGroupDescription,
+          mail: this.newGroupMail
+        })
+      });
+
+      const result = await response.json();
+      if (result.status === 'success') {
+        this.fetchGroups();
+        this.closeNewGroupPopup();
+      } else {
+        this.createGroupError = result.message || 'Failed to create group!';
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      this.createGroupError = 'Failed to create group!';
+    }
+  }
+
+  @action
+  openAddUserPopup() {
+    this.isAddUserPopupVisible = true;
+  }
+
+  @action
+  closeAddUserPopup() {
+    this.isAddUserPopupVisible = false;
+    this.userName = '';
+    this.groupName = '';
+    this.addUserError = '';
+    this.addUserSuccess = '';
+  }
+
+  @action
+  updateUserName(event) {
+    this.userName = event.target.value;
+  }
+
+  @action
+  updateGroupName(event) {
+    this.groupName = event.target.value;
+  }
+
+  @action
+  async addUserToGroup(event) {
+    event.preventDefault();
+
+    if (!this.userName || !this.groupName) {
+      alert('All fields are required!');
+      return;
+    }
+
+    try {
+      const response = await fetch('http://localhost:8080/backend_war_exploded/AddUserToGroupServlet', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          userName: this.userName,
+          groupName: this.groupName
+        })
+      });
+
+      const result = await response.json();
+      if(result.status === 'success') {
+        this.addUserSuccess = 'User added to group successfully!';
+        this.addUserError = '';
+      } 
+      else if(result.message.includes('User already exists in the group')) {
+        this.addUserError = 'User already exists in the group!';
+        this.addUserSuccess = '';
+      } 
+      else if(result.message.includes('User not found in AD')) {
+        this.addUserError = 'User not found or mismatch!';
+        this.addUserSuccess = '';
+      } 
+      else{
+        this.addUserError = 'Invalid user or group!';
+        this.addUserSuccess = '';
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      this.addUserError = 'Invalid user or group!';
+      this.addUserSuccess = '';
+    }
   }
 }

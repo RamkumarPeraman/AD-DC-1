@@ -291,11 +291,10 @@ void processOUEntry(LDAP* ld, LDAPMessage* entry) {
 
             string ouPostData = "{\"type\":\"organizationalUnit\",\"ouName\":\"" + ouName + "\",\"description\":\"" + ouDescription + "\",\"address\":\"" + address + "\"}";
 
-            // Send data to servlet
             sendDataToServlet(URL + "/OUServlet", ouPostData);
             cout << "Organizational Unit data sent to OUServlet: " << ouName << ", " << ouDescription <<"," << address<< endl;
 
-            processedEntries.insert(dn); // Add to processed entries to avoid duplicates
+            processedEntries.insert(dn); 
         }
     }
 }
@@ -459,7 +458,7 @@ int main(){
         }
         lastCheckedTime = time(nullptr);
         initialFetch = false;        
-        sleep(60);
+        sleep(120);
     }
     ldap_unbind_ext_s(ld, nullptr, nullptr);
     return 0;

@@ -1,6 +1,15 @@
 import Route from '@ember/routing/route';
 
 export default class ComputerRoute extends Route {
+  queryParams = {
+    search: {
+      refreshModel: true
+    },
+    sortBy: {
+      refreshModel: true
+    }
+  }
+
   async model(params) {
     try {
       const search = params.search || '';
@@ -20,14 +29,5 @@ export default class ComputerRoute extends Route {
     super.setupController(controller, model);
     controller.computers = model.computers;
     controller.totalCount = model.totalCount;
-  }
-
-  queryParams = {
-    search: {
-      refreshModel: true
-    },
-    sortBy: {
-      refreshModel: true
-    }
   }
 }

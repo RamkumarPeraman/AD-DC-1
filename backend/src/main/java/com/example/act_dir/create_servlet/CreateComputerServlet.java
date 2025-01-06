@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 
-public class CreateGroupServlet extends HttpServlet {
+public class CreateComputerServlet extends HttpServlet {
 
     @Override
     protected void doOptions(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -27,16 +27,16 @@ public class CreateGroupServlet extends HttpServlet {
         try (JsonReader jsonReader = Json.createReader(request.getInputStream())) {
             JsonObject json = jsonReader.readObject();
 
-            String groupName = json.getString("groupName");
+            String name = json.getString("name");
             String description = json.getString("description");
-            String mail = json.getString("mail");
+            String location = json.getString("location");
 
-            String resultMessage = createGroup(groupName, description, mail);
+            String resultMessage = createComputer(name, description, location);
 
             response.setContentType("application/json");
             PrintWriter out = response.getWriter();
             JsonObject jsonResponse = Json.createObjectBuilder()
-                    .add("status", resultMessage.equals("Group created successfully") ? "success" : "failure")
+                    .add("status", resultMessage.equals("Computer created successfully") ? "success" : "failure")
                     .add("message", resultMessage)
                     .build();
             out.print(jsonResponse.toString());
@@ -60,9 +60,9 @@ public class CreateGroupServlet extends HttpServlet {
         response.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
     }
 
-    private String createGroup(String groupName, String description, String mail) {
+    private String createComputer(String name, String description, String location) {
         try {
-            ProcessBuilder processBuilder = new ProcessBuilder("/home/ram-pt7749/Music/prom/agent/create/groupCreate", groupName, description, mail);
+            ProcessBuilder processBuilder = new ProcessBuilder("/home/ram-pt7749/Music/prom/agent/create/computerCreate", name, description, location);
             processBuilder.redirectErrorStream(true);
             Process process = processBuilder.start();
 
@@ -73,15 +73,12 @@ public class CreateGroupServlet extends HttpServlet {
                 output.append(line);
             }
             int exitCode = process.waitFor();
-            if(output.toString().contains("Group already exists")) {
-                return "Group already exists";
-            }
             if (exitCode != 0) {
-                System.err.println("Error creating group. Exit code: " + exitCode);
+                System.err.println("Error creating computer. Exit code: " + exitCode);
                 System.err.println(output.toString());
                 return output.toString();
             }
-            return "Group created successfully";
+            return output.toString().contains("Computer already exists") ? "Computer already exists" : "Computer created successfully";
         } catch (Exception e) {
             e.printStackTrace();
             return e.getMessage();

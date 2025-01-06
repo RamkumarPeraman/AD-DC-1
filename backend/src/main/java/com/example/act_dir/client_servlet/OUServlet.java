@@ -37,7 +37,7 @@ public class OUServlet extends HttpServlet {
             data = jsonReader.readObject();
         } catch (Exception e) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("Invalid JSON format");
+//            response.getWriter().write("Invalid JSON format");
             return;
         }
         ouDataList.add(data);

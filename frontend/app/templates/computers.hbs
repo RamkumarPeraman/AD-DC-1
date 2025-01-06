@@ -1,6 +1,5 @@
 <div class="computer-grid">
-  <div class="head_name"></div>
-  <h1 class="heading">computers</h1>
+  <h1 class="heading">Computers</h1>
 
   <div class="search-options">
     <div class="search-wrapper">
@@ -21,6 +20,8 @@
 
   <p class="total-count">Total : <b>{{this.totalCount}}</b></p>
 
+  <button class="new-button" {{on "click" this.openNewComputerPopup}}>New Computer</button>
+
   <div class="tiles">
     {{#each this.computers as |computer|}}
       <div class="tile">
@@ -39,29 +40,43 @@
       <div class="popup-content">
         <button class="close-button" type="button" {{on "click" this.closePopup}}>X</button>
         <p>
-          <strong>computer Name:</strong>
-          {{#if this.selectedComputer.name}}
-            <i>{{this.selectedComputer.name}}</i>
-          {{else}}
-            <i>No computer Name found</i>
-          {{/if}}
+          <strong>Computer Name:</strong>
+          <i>{{this.selectedComputer.name}}</i>
         </p>
         <p>
           <strong>Description:</strong>
-          {{#if this.selectedComputer.description}}
-            <i>{{this.selectedComputer.description}}</i>
-          {{else}}
-            <i>No Description found</i>
-          {{/if}}
+          <i>{{this.selectedComputer.description}}</i>
         </p>
         <p>
-          <strong>Mail:</strong>
-          {{#if this.selectedComputer.mail}}
-            <i>{{this.selectedComputer.mail}}</i>
-          {{else}}
-            <i>No mail found</i>
-          {{/if}}
+          <strong>Location:</strong>
+          <i>{{this.selectedComputer.location}}</i>
         </p>
+      </div>
+    </div>
+  {{/if}}
+
+  {{#if this.isNewComputerPopupVisible}}
+    <div class="popup">
+      <div class="popup-content">
+        <button class="close-button" type="button" {{on "click" this.closeNewComputerPopup}}>X</button>
+        <h2>Create New Computer</h2>
+        <form {{on "submit" this.createComputer}}>
+          <label for="name">Computer Name:</label>
+          <input type="text" id="name" name="name" value={{this.name}} {{on "input" this.updateName}} required />
+
+          <label for="description">Description:</label>
+          <input type="text" id="description" name="description" value={{this.description}} {{on "input" this.updateDescription}} required />
+
+          <label for="location">Location:</label>
+          <input type="text" id="location" name="location" value={{this.location}} {{on "input" this.updateLocation}} required />
+
+          <button type="submit">Create Computer</button>
+        </form>
+        <div class="msg">
+            {{#if this.createComputerError}}
+              <div class="error-message">{{this.createComputerError}}</div>
+            {{/if}}
+        </div>
       </div>
     </div>
   {{/if}}

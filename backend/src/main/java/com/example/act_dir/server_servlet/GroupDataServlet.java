@@ -30,7 +30,7 @@ public class GroupDataServlet extends HttpServlet {
             data = jsonReader.readObject();
         } catch(Exception e) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("Invalid JSON format");
+//            response.getWriter().write("Invalid JSON format");
             return;
         }
 
@@ -39,7 +39,7 @@ public class GroupDataServlet extends HttpServlet {
 
         if(type == null || groupName == null) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("Invalid input: 'type' or 'groupName' key is missing");
+//            response.getWriter().write("Invalid input: 'type' or 'groupName' key is missing");
             return;
         }
 

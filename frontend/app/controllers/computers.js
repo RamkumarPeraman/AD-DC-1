@@ -8,6 +8,16 @@ export default class ComputerController extends Controller {
   @tracked sortBy = '';
   @tracked searchQuery = '';
   @tracked totalCount = 0;
+  @tracked name = '';
+  @tracked description = '';
+  @tracked location = '';
+  @tracked isNewComputerPopupVisible = false;
+  @tracked createComputerError = '';
+
+  constructor() {
+    super(...arguments);
+    this.fetchComputers();
+  }
 
   @action
   async fetchComputers() {
@@ -55,5 +65,69 @@ export default class ComputerController extends Controller {
   updateSearchQuery(event) {
     this.searchQuery = event.target.value;
     this.fetchComputers();
+  }
+
+  @action
+  openNewComputerPopup() {
+    this.isNewComputerPopupVisible = true;
+  }
+
+  @action
+  closeNewComputerPopup() {
+    this.isNewComputerPopupVisible = false;
+    this.name = '';
+    this.description = '';
+    this.location = '';
+    this.createComputerError = '';
+  }
+
+  @action
+  updateName(event) {
+    this.name = event.target.value;
+  }
+
+  @action
+  updateDescription(event) {
+    this.description = event.target.value;
+  }
+
+  @action
+  updateLocation(event) {
+    this.location = event.target.value;
+  }
+
+  @action
+  async createComputer(event) {
+    event.preventDefault();
+
+    if (!this.name || !this.description || !this.location) {
+      alert('All fields are required!');
+      return;
+    }
+
+    try {
+      const response = await fetch('http://localhost:8080/backend_war_exploded/CreateComputerServlet', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name: this.name,
+          description: this.description,
+          location: this.location
+        })
+      });
+
+      const result = await response.json();
+      if (result.status === 'success') {
+        this.fetchComputers();
+        this.closeNewComputerPopup();
+      } else {
+        this.createComputerError = result.message || 'Failed to create computer!';
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      this.createComputerError = 'Failed to create computer!';
+    }
   }
 }

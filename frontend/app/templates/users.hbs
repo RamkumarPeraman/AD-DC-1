@@ -20,6 +20,8 @@
 
   <p class="total-count">Total : <b>{{this.totalCount}}</b></p>
 
+  <button class="new-button" {{on "click" this.openNewUserPopup}}>New User</button>
+
   <div class="tiles">
     {{#each this.users as |user|}}
       <div class="tile">
@@ -57,6 +59,41 @@
           <strong>Address:</strong>
           <i>{{this.selectedUser.address}}</i>
         </p>
+      </div>
+    </div>
+  {{/if}}
+
+  {{#if this.isNewUserPopupVisible}}
+    <div class="popup">
+      <div class="popup-content">
+        <button class="close-button" type="button" {{on "click" this.closeNewUserPopup}}>X</button>
+        <h2>Create New User</h2>
+        <form {{on "submit" this.createUser}}>
+          <label for="firstName">First Name:</label>
+          <input type="text" id="firstName" name="firstName" value={{this.firstName}} {{on "input" this.updateFirstName}} required />
+
+          <label for="lastName">Last Name:</label>
+          <input type="text" id="lastName" name="lastName" value={{this.lastName}} {{on "input" this.updateLastName}} required />
+
+          <label for="displayName">Display Name:</label>
+          <input type="text" id="displayName" name="displayName" value={{this.displayName}} {{on "input" this.updateDisplayName}} required />
+
+          <label for="mail">Mail:</label>
+          <input type="email" id="mail" name="mail" value={{this.mail}} {{on "input" this.updateMail}} required />
+
+          <label for="description">Description:</label>
+          <input type="text" id="description" name="description" value={{this.description}} {{on "input" this.updateDescription}} required />
+
+          <label for="telephoneNumber">Telephone Number:</label>
+          <input type="text" id="telephoneNumber" name="telephoneNumber" value={{this.telephoneNumber}} {{on "input" this.updateTelephoneNumber}} required />
+
+          <button type="submit">Create User</button>
+        </form>
+        <div class="msg">
+            {{#if this.createUserError}}
+              <div class="error-message">{{this.createUserError}}</div>
+            {{/if}}
+        </div>
       </div>
     </div>
   {{/if}}

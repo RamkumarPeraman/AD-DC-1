@@ -6,10 +6,10 @@
   <div class="search-options">
     <div class="search-wrapper">
       <img src="../asset/search.png" alt="Group" class="search_icon" />
-      <input type="text" id="search" name="search" placeholder="Search by Group..." value={{this.searchQuery}} {{on "input" this.updateSearchQuery}} />
+      <input type="text" id="search" name="search" placeholder="Search by dlt obj..." value={{this.searchQuery}} {{on "input" this.updateSearchQuery}} />
     </div>
   </div>
-
+  
   <div class="sort-options">
     <label for="sort">Sort by:</label>
     <select id="sort" name="sort" {{on "change" this.updateSortBy}}>
@@ -19,7 +19,6 @@
       <option value="old-new">Old - New</option>
     </select>
   </div>
-
   <p class="total-count">Total : <b>{{this.totalCount}}</b></p>
 
   <div class="tiles">

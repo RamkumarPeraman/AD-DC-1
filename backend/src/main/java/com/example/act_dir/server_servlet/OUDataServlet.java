@@ -33,14 +33,14 @@ public class OUDataServlet extends HttpServlet {
             data = jsonReader.readObject();
         } catch (Exception e) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("Invalid JSON format");
+//            response.getWriter().write("Invalid JSON format");
             return;
         }
 
         String type = data.getString("type", null);
         if (type == null || !data.containsKey("ous")) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("Invalid input: 'type' or 'ous' key is missing");
+//            response.getWriter().write("Invalid input: 'type' or 'ous' key is missing");
             return;
         }
 

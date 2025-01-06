@@ -1,7 +1,5 @@
 <div class="group-grid">
-  <div class="head_name"></div>
   <h1 class="heading">Groups</h1>
-
   <div class="search-options">
     <div class="search-wrapper">
       <img src="../asset/search.png" alt="Group" class="search_icon" />
@@ -19,9 +17,10 @@
     </select>
   </div>
 
-  {{!-- <div class="total-count"> --}}
-    <p class="total-count">Total : <b>{{this.totalCount}}</b></p>
-  {{!-- </div> --}}
+  <p class="total-count">Total : <b>{{this.totalCount}}</b></p>
+
+  <button class="new-button" {{on "click" this.openNewGroupPopup}}>New Group</button>
+  <button class="add-user-button" {{on "click" this.openAddUserPopup}}>Add Group-Menbers</button>
 
   <div class="tiles">
     {{#each this.groups as |group|}}
@@ -64,6 +63,58 @@
             <i>No mail found</i>
           {{/if}}
         </p>
+      </div>
+    </div>
+  {{/if}}
+
+  {{#if this.isNewGroupPopupVisible}}
+    <div class="popup">
+      <div class="popup-content">
+        <button class="close-button" type="button" {{on "click" this.closeNewGroupPopup}}>X</button>
+        <h2>Create New Group</h2>
+        <form {{on "submit" this.createGroup}}>
+          <label for="newGroupName">Group Name:</label>
+          <input type="text" id="newGroupName" name="newGroupName" value={{this.newGroupName}} {{on "input" this.updateNewGroupName}} required />
+
+          <label for="newGroupDescription">Description:</label>
+          <input type="text" id="newGroupDescription" name="newGroupDescription" value={{this.newGroupDescription}} {{on "input" this.updateNewGroupDescription}} required />
+
+          <label for="newGroupMail">Mail:</label>
+          <input type="email" id="newGroupMail" name="newGroupMail" value={{this.newGroupMail}} {{on "input" this.updateNewGroupMail}} required />
+
+          <button type="submit">Create Group</button>
+        </form>
+        <div class="msg">
+            {{#if this.createGroupError}}
+              <div class="error-message">{{this.createGroupError}}</div>
+            {{/if}}
+        </div>
+      </div>
+    </div>
+  {{/if}}
+
+  {{#if this.isAddUserPopupVisible}}
+    <div class="popup">
+      <div class="popup-content">
+        <button class="close-button" type="button" {{on "click" this.closeAddUserPopup}}>X</button>
+        <h2>Add Members</h2>
+        <form {{on "submit" this.addUserToGroup}}>
+          <label for="userName">User Name:</label>
+          <input type="text" id="userName" name="userName" value={{this.userName}} {{on "input" this.updateUserName}} required />
+
+          <label for="groupName">Group Name:</label>
+          <input type="text" id="groupName" name="groupName" value={{this.groupName}} {{on "input" this.updateGroupName}} required />
+
+          <button type="submit">Add User</button>
+        </form>
+        <div class="msg">
+            {{#if this.addUserError}}
+              <div class="error-message">{{this.addUserError}}</div>
+            {{/if}}
+            {{#if this.addUserSuccess}}
+              <div class="success-message">{{this.addUserSuccess}}</div>
+            {{/if}}
+        </div>
       </div>
     </div>
   {{/if}}
