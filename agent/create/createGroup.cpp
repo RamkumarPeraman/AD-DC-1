@@ -85,6 +85,4 @@ int main(int argc, char* argv[]) {
     ldapBind();
     createGroup(groupName, groupDescription, groupMail);
     ldap_unbind_ext_s(ld, nullptr, nullptr);
-
-    return 0;
 }
