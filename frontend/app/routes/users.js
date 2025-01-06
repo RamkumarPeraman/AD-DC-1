@@ -1,6 +1,6 @@
 import Route from '@ember/routing/route';
 
-export default class UserRoute extends Route {
+export default class UsersRoute extends Route {
   async model() {
     try {
       const response = await fetch('http://localhost:8080/backend_war_exploded/UserServlet');

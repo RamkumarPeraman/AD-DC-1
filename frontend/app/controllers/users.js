@@ -2,7 +2,7 @@ import Controller from '@ember/controller';
 import { action } from '@ember/object';
 import { tracked } from '@glimmer/tracking';
 
-export default class UserController extends Controller {
+export default class UsersController extends Controller {
   @tracked users = [];
   @tracked selectedUser = null;
   @tracked sortBy = '';
@@ -21,14 +21,17 @@ export default class UserController extends Controller {
     super(...arguments);
     this.fetchUsers();
   }
+
   @action
   async fetchUsers() {
     try {
+      console.log('Fetching users...');
       const response = await fetch(`http://localhost:8080/backend_war_exploded/UserServlet?search=${this.searchQuery}&sortBy=${this.sortBy}`);
       if (!response.ok) {
         throw new Error(`Failed to fetch users: ${response.statusText}`);
       }
       const data = await response.json();
+      console.log('Fetched users:', data);
       this.users = data;
       this.totalCount = data.length;
     } catch (error) {
@@ -39,13 +42,15 @@ export default class UserController extends Controller {
   }
 
   @action
-  async showUserDetails(userName) {
+  async showUserDetails(displayName) {
     try {
-      const response = await fetch(`http://localhost:8080/backend_war_exploded/FetchUserData?userName=${userName}`);
+      console.log('Fetching user details for:', displayName);
+      const response = await fetch(`http://localhost:8080/backend_war_exploded/FetchUserData?displayName=${displayName}`);
       if (!response.ok) {
         throw new Error(`Failed to fetch user details: ${response.statusText}`);
       }
       this.selectedUser = await response.json();
+      console.log('Fetched user details:', this.selectedUser);
     } catch (error) {
       console.error('Error fetching user details:', error);
       this.selectedUser = null;
@@ -152,6 +157,37 @@ export default class UserController extends Controller {
     } catch (error) {
       console.error('Error:', error);
       this.createUserError = 'Failed to create user!';
+    }
+  }
+
+  @action
+  confirmDelete(displayName) {
+    if (confirm(`Are you sure you want to delete the user '${displayName}'?`)) {
+      this.deleteUser(displayName);
+    }
+  }
+
+  @action
+  async deleteUser(displayName) {
+    try {
+      const response = await fetch('http://localhost:8080/backend_war_exploded/DeleteUserServlet', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ displayName })
+      });
+
+      const result = await response.json();
+      if (result.status === 'success') {
+        // Refetch users after successful deletion
+        this.fetchUsers();
+      } else {
+        alert(result.message || 'Failed to delete user!');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Failed to delete user!');
     }
   }
 }

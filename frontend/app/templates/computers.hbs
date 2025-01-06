@@ -28,6 +28,7 @@
         <a href="#" {{on "click" (fn this.showComputerDetails computer.name)}}>
           <img src="../asset/computer.png" alt="computer" class="g_icon" /><br>{{computer.name}}
         </a>
+        <button class="delete-button" {{on "click" (fn this.confirmDelete computer.name)}}>Delete</button>
       </div>
     {{else}}
       <h3 class="not_found">No computers found</h3>
@@ -73,9 +74,9 @@
           <button type="submit">Create Computer</button>
         </form>
         <div class="msg">
-            {{#if this.createComputerError}}
-              <div class="error-message">{{this.createComputerError}}</div>
-            {{/if}}
+          {{#if this.createComputerError}}
+            <div class="error-message">{{this.createComputerError}}</div>
+          {{/if}}
         </div>
       </div>
     </div>

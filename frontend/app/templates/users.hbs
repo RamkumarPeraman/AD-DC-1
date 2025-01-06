@@ -1,6 +1,7 @@
 <div class="user-grid">
   <div class="head_name"></div>
   <h1 class="heading">Users</h1>
+
   <div class="search-options">
     <div class="search-wrapper">
       <img src="../asset/search.png" alt="user" class="search_icon" />
@@ -28,6 +29,7 @@
         <a href="#" {{on "click" (fn this.showUserDetails user.name)}}>
           <img src="../asset/user.png" alt="user" class="u_icon" /><br>{{user.name}}
         </a>
+        <button class="delete-button" {{on "click" (fn this.confirmDelete user.name)}}>Delete</button>
       </div>
     {{else}}
       <h3 class="not_found">No users found</h3>

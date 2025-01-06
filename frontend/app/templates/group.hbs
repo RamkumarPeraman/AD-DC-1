@@ -20,7 +20,7 @@
   <p class="total-count">Total : <b>{{this.totalCount}}</b></p>
 
   <button class="new-button" {{on "click" this.openNewGroupPopup}}>New Group</button>
-  <button class="add-user-button" {{on "click" this.openAddUserPopup}}>Add Group-Menbers</button>
+  <button class="add-user-button" {{on "click" this.openAddUserPopup}}>Add Group Members</button>
 
   <div class="tiles">
     {{#each this.groups as |group|}}
@@ -28,6 +28,7 @@
         <a href="#" {{on "click" (fn this.showGroupDetails group.name)}}>
           <img src="../asset/group.png" alt="Group" class="g_icon" /><br>{{group.name}}
         </a>
+        <button class="delete-button" {{on "click" (fn this.confirmDelete group.name)}}>Delete</button>
       </div>
     {{else}}
       <h3 class="not_found">No groups found</h3>

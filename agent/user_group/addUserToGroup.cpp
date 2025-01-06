@@ -11,7 +11,7 @@ int rc;
 
 void ldapBind() {
     rc = ldap_initialize(&ld, ldap_server);
-    if (rc != LDAP_SUCCESS) {
+    if(rc != LDAP_SUCCESS) {
         cerr << "Failed to initialize LDAP connection: " << ldap_err2string(rc) << endl;
         exit(EXIT_FAILURE);
     }
@@ -23,7 +23,7 @@ void ldapBind() {
     cred.bv_len = strlen(password);
 
     rc = ldap_sasl_bind_s(ld, username, LDAP_SASL_SIMPLE, &cred, NULL, NULL, NULL);
-    if (rc != LDAP_SUCCESS) {
+    if(rc != LDAP_SUCCESS) {
         cerr << "LDAP bind failed: " << ldap_err2string(rc) << endl;
         ldap_unbind_ext_s(ld, NULL, NULL);
         exit(EXIT_FAILURE);
@@ -71,14 +71,14 @@ string addUserToGroup(const char* group_cn, const char* user_cn) {
 
     LDAPMod add_member;
     LDAPMod* data[2];
-    const char* memberValues[] = { user_dn.c_str(), NULL };
+    const char* memberValues[] = {user_dn.c_str(), NULL};
     add_member.mod_op = LDAP_MOD_ADD;
     add_member.mod_type = const_cast<char*>("member");
     add_member.mod_vals.modv_strvals = const_cast<char**>(memberValues);
     data[0] = &add_member;
     data[1] = NULL;
 
-    rc = ldap_modify_ext_s(ld, group_dn.c_str(), data, NULL, NULL);
+    rc = ldap_modify_ext_s(ld,group_dn.c_str(), data, NULL, NULL);
     if (rc != LDAP_SUCCESS) {
         cerr << "Failed to add user to group: " << ldap_err2string(rc) << endl;
         return "Failed to add user to group: " + string(ldap_err2string(rc));

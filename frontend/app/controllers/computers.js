@@ -13,6 +13,7 @@ export default class ComputerController extends Controller {
   @tracked location = '';
   @tracked isNewComputerPopupVisible = false;
   @tracked createComputerError = '';
+  @tracked deleteComputerError = '';
 
   constructor() {
     super(...arguments);
@@ -128,6 +129,38 @@ export default class ComputerController extends Controller {
     } catch (error) {
       console.error('Error:', error);
       this.createComputerError = 'Failed to create computer!';
+    }
+  }
+
+  @action
+  confirmDelete(computerName) {
+    if (confirm(`Are you sure you want to delete the computer '${computerName}'?`)) {
+      this.deleteComputer(computerName);
+    }
+  }
+
+  @action
+  async deleteComputer(computerName) {
+    try {
+      const response = await fetch('http://localhost:8080/backend_war_exploded/DeleteComputerServlet', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name: computerName
+        })
+      });
+
+      const result = await response.json();
+      if (result.status === 'success') {
+        this.fetchComputers();
+      } else {
+        this.deleteComputerError = result.message || 'Failed to delete computer!';
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      this.deleteComputerError = 'Failed to delete computer!';
     }
   }
 }

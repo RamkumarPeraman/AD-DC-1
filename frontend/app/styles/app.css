@@ -25,6 +25,7 @@ body {
   flex-shrink: 0;
   height: 100vh;
   position: fixed;
+  overflow-y: auto;
 }
 
 .heading {

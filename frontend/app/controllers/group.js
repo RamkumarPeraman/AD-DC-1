@@ -209,4 +209,36 @@ export default class GroupController extends Controller {
       this.addUserSuccess = '';
     }
   }
+
+  @action
+  confirmDelete(groupName) {
+    if (confirm(`Are you sure you want to delete the group '${groupName}'?`)) {
+      this.deleteGroup(groupName);
+    }
+  }
+
+  @action
+  async deleteGroup(groupName) {
+    try {
+      const response = await fetch('http://localhost:8080/backend_war_exploded/DeleteGroupServlet', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          groupName: groupName
+        })
+      });
+
+      const result = await response.json();
+      if (result.status === 'success') {
+        this.fetchGroups();
+      } else {
+        alert(result.message || 'Failed to delete group!');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Failed to delete group!');
+    }
+  }
 }
