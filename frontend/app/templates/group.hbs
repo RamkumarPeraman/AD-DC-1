@@ -28,7 +28,9 @@
         <a href="#" {{on "click" (fn this.showGroupDetails group.name)}}>
           <img src="../asset/group.png" alt="Group" class="g_icon" /><br>{{group.name}}
         </a>
-        <button class="delete-button" {{on "click" (fn this.confirmDelete group.name)}}>Delete</button>
+        {{!-- <button class="delete-button" {{on "click" (fn this.confirmDelete group.name)}}>Delete</button> --}}
+        <p class="delete-button" {{on "click" (fn this.confirmDelete group.name)}}><img src="../asset/dlt.png" alt="Home" class="dlt" /></p>        
+
       </div>
     {{else}}
       <h3 class="not_found">No groups found</h3>

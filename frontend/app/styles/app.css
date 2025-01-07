@@ -99,6 +99,7 @@ body {
   grid-template-columns: repeat(2, 1fr);
   gap: 1rem;
   margin-bottom: 2rem;
+  position: relative;
 }
 
 .tile {
@@ -140,6 +141,7 @@ body {
   padding-bottom: 5px;
   margin-top: 2px;
   max-width: 50px;
+  /* border: none; */
 }
 
 .groups_icon {
@@ -363,4 +365,14 @@ button[type="submit"]:active {
   margin-left: 18%;
   color: red;
   font-size: 20px;
+}
+.dlt{
+  margin-left: 22%;
+  /* margin-top: %; */
+  cursor: pointer;
+  height: 35px;
+  width: 35px;
+  margin-top: -12.5%;
+  position: absolute;
+
 }

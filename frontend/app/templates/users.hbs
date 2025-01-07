@@ -29,7 +29,9 @@
         <a href="#" {{on "click" (fn this.showUserDetails user.name)}}>
           <img src="../asset/user.png" alt="user" class="u_icon" /><br>{{user.name}}
         </a>
-        <button class="delete-button" {{on "click" (fn this.confirmDelete user.name)}}>Delete</button>
+        {{!-- <button class="delete-button" {{on "click" (fn this.confirmDelete user.name)}}>Delete</button> --}}
+        <p class="delete-button" {{on "click" (fn this.confirmDelete user.name)}}><img src="../asset/dlt.png" alt="Home" class="dlt" /></p>        
+
       </div>
     {{else}}
       <h3 class="not_found">No users found</h3>

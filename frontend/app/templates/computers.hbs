@@ -28,7 +28,7 @@
         <a href="#" {{on "click" (fn this.showComputerDetails computer.name)}}>
           <img src="../asset/computer.png" alt="computer" class="g_icon" /><br>{{computer.name}}
         </a>
-        <button class="delete-button" {{on "click" (fn this.confirmDelete computer.name)}}>Delete</button>
+        <p class="delete-button" {{on "click" (fn this.confirmDelete computer.name)}}><img src="../asset/dlt.png" alt="Home" class="dlt" /></p>        
       </div>
     {{else}}
       <h3 class="not_found">No computers found</h3>
