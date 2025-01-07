@@ -2,11 +2,14 @@
 #include <string>
 #include <ldap.h>
 #include <cstring>
+#include <ctime>
 #include "../ldap_config.h"
 
 using namespace std;
+
 LDAP* ld;
 int rc;
+
 void ldapBind() {
     rc = ldap_initialize(&ld, ldap_server);
     if (rc != LDAP_SUCCESS) {
@@ -26,11 +29,25 @@ void ldapBind() {
         exit(EXIT_FAILURE);
     }
 }
+
+string convertToIndianFormat(const string& ldapTime) {
+    struct tm tm;
+    memset(&tm, 0, sizeof(struct tm));
+    strptime(ldapTime.c_str(), "%Y%m%d%H%M%SZ", &tm);
+
+    // Convert to time_t and add 5 hours 30 minutes for IST (Indian Standard Time)
+    time_t rawTime = mktime(&tm) + 19800; // 19800 seconds = 5 hours 30 minutes
+    char buffer[80];
+    strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", localtime(&rawTime));
+    return string(buffer);
+}
+
 string getGroupDetails(const string& groupName) {
     string filter = "(cn=" + groupName + ")";
     LDAPMessage* result = nullptr;
-    rc = ldap_search_ext_s(ld, comp_base_dn, LDAP_SCOPE_SUBTREE, filter.c_str(), NULL, 0, NULL, NULL, NULL, 0, &result);
-    if(rc != LDAP_SUCCESS) {
+    const char* attrs[] = {"description", "location", "whenCreated", "whenChanged", NULL}; // Specify attributes to fetch
+    rc = ldap_search_ext_s(ld, comp_base_dn, LDAP_SCOPE_SUBTREE, filter.c_str(), const_cast<char**>(attrs), 0, NULL, NULL, NULL, 0, &result);
+    if (rc != LDAP_SUCCESS) {
         cerr << "LDAP search failed: " << ldap_err2string(rc) << endl;
         ldap_msgfree(result);
         return "{}";
@@ -42,7 +59,7 @@ string getGroupDetails(const string& groupName) {
         return "{}";
     }
 
-    string description,location;
+    string description, location, whenCreated, whenChanged;
     BerElement* ber;
     char* attribute = ldap_first_attribute(ld, entry, &ber);
     while (attribute != NULL) {
@@ -54,6 +71,12 @@ string getGroupDetails(const string& groupName) {
             if (strcmp(attribute, "location") == 0) {
                 location = values[0]->bv_val;
             }
+            if (strcmp(attribute, "whenCreated") == 0) {
+                whenCreated = convertToIndianFormat(values[0]->bv_val);
+            }
+            if (strcmp(attribute, "whenChanged") == 0) {
+                whenChanged = convertToIndianFormat(values[0]->bv_val);
+            }
             ldap_value_free_len(values);
         }
         ldap_memfree(attribute);
@@ -63,11 +86,11 @@ string getGroupDetails(const string& groupName) {
         ber_free(ber, 0);
     }
     ldap_msgfree(result);
-    return "{\"name\": \"" + groupName + "\", \"description\": \"" + description + "\", \"location\": \"" + location + "\"}";
+    return "{\"name\": \"" + groupName + "\", \"description\": \"" + description + "\", \"location\": \"" + location + "\", \"whenCreated\": \"" + whenCreated + "\", \"whenChanged\": \"" + whenChanged + "\"}";
 }
 
 int main(int argc, char* argv[]) {
-    if(argc != 2) {
+    if (argc != 2) {
         cerr << "Usage: " << argv[0] << " <groupName>" << endl;
         return 1;
     }

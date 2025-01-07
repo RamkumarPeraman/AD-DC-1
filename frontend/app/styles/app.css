@@ -28,6 +28,10 @@ body {
   overflow-y: auto;
 }
 
+.sidebar::-webkit-scrollbar {
+  width: 1px;
+}
+
 .heading {
   display: flex;
   justify-content: center;
@@ -141,6 +145,7 @@ body {
   padding-bottom: 5px;
   margin-top: 2px;
   max-width: 50px;
+
   /* border: none; */
 }
 
@@ -194,16 +199,18 @@ body {
 
 .sort-options {
   margin-top: -30px;
-  text-align: left; 
-  flex: 1; 
+  text-align: left;
+  flex: 1;
 }
+
 #sort {
   padding: 8px;
   width: 100%;
-  max-width: 200px; 
+  max-width: 200px;
   border: 1px solid #ccc;
   border-radius: 4px;
 }
+
 .search-sort-container {
   display: flex;
   justify-content: space-between;
@@ -212,6 +219,7 @@ body {
 
 .search-options {
   text-align: right;
+
   /* position: absolute; */
   margin-left: 67%;
   flex: 1;
@@ -234,7 +242,7 @@ body {
 #search {
   padding: 10px 15px 10px 40px;
   width: 100%;
-  border: 1px solid #4CAF50;
+  border: 1px solid #4caf50;
   border-radius: 30px;
   background-color: #f1f1f1;
   font-size: 14px;
@@ -244,7 +252,7 @@ body {
 
 #search:focus {
   outline: none;
-  border-color: #388E3C;
+  border-color: #388e3c;
   background-color: #fff;
 }
 
@@ -254,55 +262,55 @@ label {
   font-size: 14px;
 }
 
-.total-count{
+.total-count {
   margin-left: 94%;
   margin-top: -2.2%;
   font-size: 20px;
 }
 
-
 .new-button {
   background-color: #00da53;
   border: 2px solid #b4e0b7;
   width: 10%;
-  font-family: 'Courier New', Courier, monospace;
+  font-family: "Courier New", Courier, monospace;
   font-weight: bold;
   padding: 10px 15px;
   font-size: 16px;
   color: #030303;
   text-align: center;
-  margin: -10% 0 0 35%;
+  margin: -0% 0 3% 35%;
   border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
-.add-user-button{
+.add-user-button {
   background-color: #00da53;
   border: 2px solid #b4e0b7;
   width: 15%;
-  font-family: 'Courier New', Courier, monospace;
+  font-family: "Courier New", Courier, monospace;
   font-weight: bold;
   padding: 10px 15px;
   font-size: 16px;
   color: #030303;
   text-align: center;
-  margin: - 0 0 47%;
   border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .new-button:hover {
   background-color: #a0d7a1;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 8px rgb(0 0 0 / 10%);
 }
 
 .new-button:active {
   background-color: #88c28d;
 }
-
-
 
 form {
   display: flex;
@@ -315,7 +323,7 @@ form {
   background-color: #f7f7f7;
   border: 1px solid #ddd;
   border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 10px rgb(0 0 0 / 10%);
 }
 
 label {
@@ -343,7 +351,7 @@ input[type="email"]:focus {
 
 button[type="submit"] {
   background-color: #4caf50;
-  color: #ffffff;
+  color: #fff;
   padding: 10px 15px;
   font-size: 16px;
   font-weight: bold;
@@ -360,19 +368,21 @@ button[type="submit"]:hover {
 button[type="submit"]:active {
   background-color: #39843c;
 }
-.msg{
+
+.msg {
   padding-top: 50px;
   margin-left: 18%;
   color: red;
   font-size: 20px;
 }
-.dlt{
+
+.dlt {
   margin-left: 22%;
+
   /* margin-top: %; */
   cursor: pointer;
   height: 35px;
   width: 35px;
   margin-top: -12.5%;
   position: absolute;
-
 }

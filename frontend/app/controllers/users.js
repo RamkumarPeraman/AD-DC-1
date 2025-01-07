@@ -26,7 +26,9 @@ export default class UsersController extends Controller {
   async fetchUsers() {
     try {
       console.log('Fetching users...');
-      const response = await fetch(`http://localhost:8080/backend_war_exploded/UserServlet?search=${this.searchQuery}&sortBy=${this.sortBy}`);
+      const response = await fetch(
+        `http://localhost:8080/backend_war_exploded/UserServlet?search=${this.searchQuery}&sortBy=${this.sortBy}`,
+      );
       if (!response.ok) {
         throw new Error(`Failed to fetch users: ${response.statusText}`);
       }
@@ -45,7 +47,9 @@ export default class UsersController extends Controller {
   async showUserDetails(displayName) {
     try {
       console.log('Fetching user details for:', displayName);
-      const response = await fetch(`http://localhost:8080/backend_war_exploded/FetchUserData?displayName=${displayName}`);
+      const response = await fetch(
+        `http://localhost:8080/backend_war_exploded/FetchUserData?displayName=${displayName}`,
+      );
       if (!response.ok) {
         throw new Error(`Failed to fetch user details: ${response.statusText}`);
       }
@@ -125,25 +129,35 @@ export default class UsersController extends Controller {
   async createUser(event) {
     event.preventDefault();
 
-    if (!this.firstName || !this.lastName || !this.displayName || !this.mail || !this.description || !this.telephoneNumber) {
+    if (
+      !this.firstName ||
+      !this.lastName ||
+      !this.displayName ||
+      !this.mail ||
+      !this.description ||
+      !this.telephoneNumber
+    ) {
       alert('All fields are required!');
       return;
     }
     try {
-      const response = await fetch('http://localhost:8080/backend_war_exploded/CreateUserServlet', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
+      const response = await fetch(
+        'http://localhost:8080/backend_war_exploded/CreateUserServlet',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            firstName: this.firstName,
+            lastName: this.lastName,
+            mail: this.mail,
+            phnnumber: this.telephoneNumber,
+            description: this.description,
+            displayname: this.displayName,
+          }),
         },
-        body: JSON.stringify({
-          firstName: this.firstName,
-          lastName: this.lastName,
-          mail: this.mail,
-          phnnumber: this.telephoneNumber,
-          description: this.description,
-          displayname: this.displayName
-        })
-      });
+      );
 
       const result = await response.json();
       if (result.status === 'success') {
@@ -170,13 +184,16 @@ export default class UsersController extends Controller {
   @action
   async deleteUser(displayName) {
     try {
-      const response = await fetch('http://localhost:8080/backend_war_exploded/DeleteUserServlet', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
+      const response = await fetch(
+        'http://localhost:8080/backend_war_exploded/DeleteUserServlet',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ displayName }),
         },
-        body: JSON.stringify({ displayName })
-      });
+      );
 
       const result = await response.json();
       if (result.status === 'success') {

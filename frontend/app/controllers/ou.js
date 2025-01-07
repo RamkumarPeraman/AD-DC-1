@@ -12,23 +12,31 @@ export default class OUController extends Controller {
     let filteredOUs = this.ous;
 
     if (this.searchQuery) {
-      filteredOUs = filteredOUs.filter(ou =>
-        ou.ouName.toLowerCase().includes(this.searchQuery.toLowerCase())
+      filteredOUs = filteredOUs.filter((ou) =>
+        ou.ouName.toLowerCase().includes(this.searchQuery.toLowerCase()),
       );
     }
 
     switch (this.sortBy) {
       case 'asc-desc':
-        filteredOUs = filteredOUs.sort((a, b) => a.ouName.localeCompare(b.ouName));
+        filteredOUs = filteredOUs.sort((a, b) =>
+          a.ouName.localeCompare(b.ouName),
+        );
         break;
       case 'desc-asc':
-        filteredOUs = filteredOUs.sort((a, b) => b.ouName.localeCompare(a.ouName));
+        filteredOUs = filteredOUs.sort((a, b) =>
+          b.ouName.localeCompare(a.ouName),
+        );
         break;
       case 'new-old':
-        filteredOUs = filteredOUs.sort((a, b) => new Date(b.createdDate) - new Date(a.createdDate));
+        filteredOUs = filteredOUs.sort(
+          (a, b) => new Date(b.createdDate) - new Date(a.createdDate),
+        );
         break;
       case 'old-new':
-        filteredOUs = filteredOUs.sort((a, b) => new Date(a.createdDate) - new Date(b.createdDate));
+        filteredOUs = filteredOUs.sort(
+          (a, b) => new Date(a.createdDate) - new Date(b.createdDate),
+        );
         break;
     }
 

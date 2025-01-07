@@ -67,10 +67,11 @@ public class DeleteUserServlet extends HttpServlet {
 
         try {
             // Delete from Active Directory
-            ProcessBuilder processBuilder = new ProcessBuilder("/home/ram-pt7749/Music/prom/agent/delete/userDelete", displayName);
+             ProcessBuilder processBuilder = new ProcessBuilder("/home/ram-pt7749/Music/prom/agent/delete/userDelete", displayName);
+
             processBuilder.redirectErrorStream(true);
             Process process = processBuilder.start();
-
+    
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             StringBuilder output = new StringBuilder();
             String line;

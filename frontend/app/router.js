@@ -14,4 +14,5 @@ Router.map(function () {
   this.route('ou');
   this.route('group');
   this.route('deleted-objects');
+  this.route('report');
 });

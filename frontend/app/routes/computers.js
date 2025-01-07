@@ -3,18 +3,20 @@ import Route from '@ember/routing/route';
 export default class ComputerRoute extends Route {
   queryParams = {
     search: {
-      refreshModel: true
+      refreshModel: true,
     },
     sortBy: {
-      refreshModel: true
-    }
-  }
+      refreshModel: true,
+    },
+  };
 
   async model(params) {
     try {
       const search = params.search || '';
       const sortBy = params.sortBy || '';
-      const response = await fetch(`http://localhost:8080/backend_war_exploded/ComputerServlet?search=${search}&sortBy=${sortBy}`);
+      const response = await fetch(
+        `http://localhost:8080/backend_war_exploded/ComputerServlet?search=${search}&sortBy=${sortBy}`,
+      );
       if (!response.ok) {
         throw new Error(`Failed to fetch computers: ${response.statusText}`);
       }

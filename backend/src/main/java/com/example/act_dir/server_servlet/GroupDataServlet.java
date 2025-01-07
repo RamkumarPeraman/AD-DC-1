@@ -9,10 +9,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
+import java.text.SimpleDateFormat;
+
 import com.example.act_dir.db.DBConnection;
 
 public class GroupDataServlet extends HttpServlet {
@@ -25,21 +24,33 @@ public class GroupDataServlet extends HttpServlet {
                 jsonData.append(line);
             }
         }
+        System.out.print(jsonData);
         JsonObject data;
         try (JsonReader jsonReader = Json.createReader(new StringReader(jsonData.toString()))) {
             data = jsonReader.readObject();
         } catch(Exception e) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-//            response.getWriter().write("Invalid JSON format");
             return;
         }
 
         String type = data.getString("type", null);
         String groupName = data.getString("groupName", null);
+        String whenCreatedStr = data.getString("whenCreated", null);
 
-        if(type == null || groupName == null) {
+        if(type == null || groupName == null || whenCreatedStr == null) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-//            response.getWriter().write("Invalid input: 'type' or 'groupName' key is missing");
+            return;
+        }
+
+        // Convert whenCreated to a Timestamp
+        Timestamp whenCreated = null;
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+            java.util.Date date = sdf.parse(whenCreatedStr);
+            whenCreated = new Timestamp(date.getTime());
+        } catch (Exception e) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write("Invalid 'whenCreated' format. Expected format: dd-MM-yyyy HH:mm:ss");
             return;
         }
 
@@ -48,12 +59,11 @@ public class GroupDataServlet extends HttpServlet {
                 response.setStatus(HttpServletResponse.SC_CONFLICT);
                 response.getWriter().write("Group already exists: " + groupName + "\n");
             } else {
-                if (insertGroup(conn, type, groupName)) {
+                if (insertGroup(conn, type, groupName, whenCreated)) {
                     response.setStatus(HttpServletResponse.SC_OK);
                     response.getWriter().write("Group successfully inserted: " + groupName +"\n");
                 } else {
                     response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-//                    response.getWriter().write("Failed to insert group: " + groupName);
                 }
             }
         } catch (SQLException e) {
@@ -76,11 +86,12 @@ public class GroupDataServlet extends HttpServlet {
         return false;
     }
 
-    private boolean insertGroup(Connection conn, String type, String groupName) throws SQLException {
-        String insertSql = "INSERT INTO act (type, name, isDeleted) VALUES (?, ?, 'NO')";
+    private boolean insertGroup(Connection conn, String type, String groupName, Timestamp whenCreated) throws SQLException {
+        String insertSql = "INSERT INTO act (type, name, whenCreated, isDeleted) VALUES (?, ?, ?, 'NO')";
         try (PreparedStatement insertStmt = conn.prepareStatement(insertSql)) {
             insertStmt.setString(1, type);
             insertStmt.setString(2, groupName);
+            insertStmt.setTimestamp(3, whenCreated);
 
             int rowsInserted = insertStmt.executeUpdate();
             return rowsInserted > 0;

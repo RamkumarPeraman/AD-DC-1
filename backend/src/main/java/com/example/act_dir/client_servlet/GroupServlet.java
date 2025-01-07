@@ -53,10 +53,10 @@ public class GroupServlet extends HttpServlet {
                     query += " ORDER BY name DESC";
                     break;
                 case "new-old":
-                    query += " ORDER BY updated_time DESC";
+                    query += " ORDER BY whenCreated DESC";
                     break;
                 case "old-new":
-                    query += " ORDER BY updated_time ASC";
+                    query += " ORDER BY whenCreated ASC";
                     break;
             }
         }

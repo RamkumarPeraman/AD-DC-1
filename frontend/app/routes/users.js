@@ -3,7 +3,9 @@ import Route from '@ember/routing/route';
 export default class UsersRoute extends Route {
   async model() {
     try {
-      const response = await fetch('http://localhost:8080/backend_war_exploded/UserServlet');
+      const response = await fetch(
+        'http://localhost:8080/backend_war_exploded/UserServlet',
+      );
       if (!response.ok) {
         throw new Error(`Failed to fetch users: ${response.statusText}`);
       }

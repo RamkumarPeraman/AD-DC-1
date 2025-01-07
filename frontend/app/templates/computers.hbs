@@ -20,7 +20,7 @@
 
   <p class="total-count">Total : <b>{{this.totalCount}}</b></p>
 
-  <button class="new-button" {{on "click" this.openNewComputerPopup}}>New Computer</button>
+  <button class="new-button" type="button" {{on "click" this.openNewComputerPopup}}>New Computer</button>
 
   <div class="tiles">
     {{#each this.computers as |computer|}}

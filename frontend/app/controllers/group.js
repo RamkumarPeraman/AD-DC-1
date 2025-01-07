@@ -30,7 +30,7 @@ export default class GroupController extends Controller {
     params.search = this.searchQuery;
     const query = new URLSearchParams(params).toString();
     const url = `http://localhost:8080/backend_war_exploded/GroupServlet?${query}`;
-    
+
     try {
       const response = await fetch(url);
       if (!response.ok) {
@@ -49,9 +49,13 @@ export default class GroupController extends Controller {
   @action
   async showGroupDetails(groupName) {
     try {
-      const response = await fetch(`http://localhost:8080/backend_war_exploded/FetchGroupData?groupName=${groupName}`);
+      const response = await fetch(
+        `http://localhost:8080/backend_war_exploded/FetchGroupData?groupName=${groupName}`,
+      );
       if (!response.ok) {
-        throw new Error(`Failed to fetch group details: ${response.statusText}`);
+        throw new Error(
+          `Failed to fetch group details: ${response.statusText}`,
+        );
       }
       this.selectedGroup = await response.json();
     } catch (error) {
@@ -116,17 +120,20 @@ export default class GroupController extends Controller {
     }
 
     try {
-      const response = await fetch('http://localhost:8080/backend_war_exploded/CreateGroupServlet', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
+      const response = await fetch(
+        'http://localhost:8080/backend_war_exploded/CreateGroupServlet',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            groupName: this.newGroupName,
+            description: this.newGroupDescription,
+            mail: this.newGroupMail,
+          }),
         },
-        body: JSON.stringify({
-          groupName: this.newGroupName,
-          description: this.newGroupDescription,
-          mail: this.newGroupMail
-        })
-      });
+      );
 
       const result = await response.json();
       if (result.status === 'success') {
@@ -175,31 +182,31 @@ export default class GroupController extends Controller {
     }
 
     try {
-      const response = await fetch('http://localhost:8080/backend_war_exploded/AddUserToGroupServlet', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
+      const response = await fetch(
+        'http://localhost:8080/backend_war_exploded/AddUserToGroupServlet',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userName: this.userName,
+            groupName: this.groupName,
+          }),
         },
-        body: JSON.stringify({
-          userName: this.userName,
-          groupName: this.groupName
-        })
-      });
+      );
 
       const result = await response.json();
-      if(result.status === 'success') {
+      if (result.status === 'success') {
         this.addUserSuccess = 'User added to group successfully!';
         this.addUserError = '';
-      } 
-      else if(result.message.includes('User already exists in the group')) {
+      } else if (result.message.includes('User already exists in the group')) {
         this.addUserError = 'User already exists in the group!';
         this.addUserSuccess = '';
-      } 
-      else if(result.message.includes('User not found in AD')) {
+      } else if (result.message.includes('User not found in AD')) {
         this.addUserError = 'User not found or mismatch!';
         this.addUserSuccess = '';
-      } 
-      else{
+      } else {
         this.addUserError = 'Invalid user or group!';
         this.addUserSuccess = '';
       }
@@ -220,15 +227,18 @@ export default class GroupController extends Controller {
   @action
   async deleteGroup(groupName) {
     try {
-      const response = await fetch('http://localhost:8080/backend_war_exploded/DeleteGroupServlet', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
+      const response = await fetch(
+        'http://localhost:8080/backend_war_exploded/DeleteGroupServlet',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            groupName: groupName,
+          }),
         },
-        body: JSON.stringify({
-          groupName: groupName
-        })
-      });
+      );
 
       const result = await response.json();
       if (result.status === 'success') {

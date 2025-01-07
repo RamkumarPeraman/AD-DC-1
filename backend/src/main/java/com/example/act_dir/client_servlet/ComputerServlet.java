@@ -50,9 +50,9 @@ public class ComputerServlet extends HttpServlet {
         } else if ("desc-asc".equalsIgnoreCase(sortBy)) {
             baseQuery += " ORDER BY name DESC";
         } else if ("new-old".equalsIgnoreCase(sortBy)) {
-            baseQuery += " ORDER BY updated_time DESC";
+            baseQuery += " ORDER BY whenCreated DESC";
         } else if ("old-new".equalsIgnoreCase(sortBy)) {
-            baseQuery += " ORDER BY updated_time ASC";
+            baseQuery += " ORDER BY whenCreated ASC";
         }
         int totalCount = 0;
         int resultCount = 0;

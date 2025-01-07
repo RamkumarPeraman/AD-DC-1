@@ -2,9 +2,10 @@
 #include <string>
 #include <ldap.h>
 #include <cstring>
+#include <ctime>
 #include "../ldap_config.h"
-using namespace std;
 
+using namespace std;
 
 LDAP* ld;
 int rc;
@@ -29,13 +30,26 @@ void ldapBind() {
     }
 }
 
-string getUserDetails(const string& displayName) { 
+string convertToIndianFormat(const string& ldapTime) {
+    struct tm tm;
+    memset(&tm, 0, sizeof(struct tm));
+    strptime(ldapTime.c_str(), "%Y%m%d%H%M%SZ", &tm);
+
+    // Convert to time_t and add 5 hours 30 minutes for IST (Indian Standard Time)
+    time_t rawTime = mktime(&tm) + 19800; // 19800 seconds = 5 hours 30 minutes
+    char buffer[80];
+    strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", localtime(&rawTime));
+    return string(buffer);
+}
+
+string getUserDetails(const string& displayName) {
     // Using displayName in the filter
     string filter = "(displayName=" + displayName + ")";
     cout << "Using filter: " << filter << endl; // Log the filter
 
     LDAPMessage* result = nullptr;
-    rc = ldap_search_ext_s(ld, user_base_dn, LDAP_SCOPE_SUBTREE, filter.c_str(), NULL, 0, NULL, NULL, NULL, 0, &result);
+    const char* attrs[] = {"description", "mail", "telephoneNumber", "streetAddress", "postOfficeBox", "l", "st", "postalCode", "co", "whenCreated", "whenChanged", NULL}; // Specify attributes to fetch
+    rc = ldap_search_ext_s(ld, user_base_dn, LDAP_SCOPE_SUBTREE, filter.c_str(), const_cast<char**>(attrs), 0, NULL, NULL, NULL, 0, &result);
     if (rc != LDAP_SUCCESS) {
         cerr << "LDAP search failed: " << ldap_err2string(rc) << endl;
         ldap_msgfree(result);
@@ -49,7 +63,7 @@ string getUserDetails(const string& displayName) {
         return "{}";
     }
 
-    string description, mail, address, office, telephoneNumber, webpage, street, pobox, city, state, postalCode, country;
+    string description, mail, address, telephoneNumber, street, pobox, city, state, postalCode, country, whenCreated, whenChanged;
     BerElement* ber;
     char* attribute = ldap_first_attribute(ld, entry, &ber);
     while (attribute != NULL) {
@@ -82,6 +96,12 @@ string getUserDetails(const string& displayName) {
             if (strcmp(attribute, "co") == 0) {
                 country = values[0]->bv_val;
             }
+            if (strcmp(attribute, "whenCreated") == 0) {
+                whenCreated = convertToIndianFormat(values[0]->bv_val);
+            }
+            if (strcmp(attribute, "whenChanged") == 0) {
+                whenChanged = convertToIndianFormat(values[0]->bv_val);
+            }
             ldap_value_free_len(values);
         }
         ldap_memfree(attribute);
@@ -90,31 +110,30 @@ string getUserDetails(const string& displayName) {
     if (ber != NULL) {
         ber_free(ber, 0);
     }
-    if(!street.empty()){
-        address += street +",";
+    if (!street.empty()) {
+        address += street + ",";
     }
-    if(!pobox.empty()){
-        address += pobox +",";
+    if (!pobox.empty()) {
+        address += pobox + ",";
     }
-    if(!city.empty()){
-        address += city +",";
+    if (!city.empty()) {
+        address += city + ",";
     }
-    if(!state.empty()){
-        address += state +",";
+    if (!state.empty()) {
+        address += state + ",";
     }
-    if(!country.empty()){
-        address += country +",";
+    if (!country.empty()) {
+        address += country + ",";
     }
-    if(!postalCode.empty()){
+    if (!postalCode.empty()) {
         address += postalCode;
-    }
-    else{
+    } else {
         address += "No address found";
     }
     ldap_msgfree(result);
     return "{\"name\": \"" + displayName + "\", \"description\": \"" + description + "\", \"mail\": \"" + mail + 
-    "\", \"telephoneNumber\": \"" + telephoneNumber + "\", \"address\": \"" + address + "\"}";
-    // return "{\"name\": \"" + displayName + "\", \"description\": \"" + description + "\"}";
+           "\", \"telephoneNumber\": \"" + telephoneNumber + "\", \"address\": \"" + address + 
+           "\", \"whenCreated\": \"" + whenCreated + "\", \"whenChanged\": \"" + whenChanged + "\"}";
 }
 
 int main(int argc, char* argv[]) {
@@ -126,7 +145,6 @@ int main(int argc, char* argv[]) {
     ldapBind();
     string userDetails = getUserDetails(displayName);
     cout << userDetails << endl;
-    
     ldap_unbind_ext_s(ld, nullptr, nullptr);
     return 0;
 }

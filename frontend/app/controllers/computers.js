@@ -23,7 +23,9 @@ export default class ComputerController extends Controller {
   @action
   async fetchComputers() {
     try {
-      const response = await fetch(`http://localhost:8080/backend_war_exploded/ComputerServlet?search=${this.searchQuery}&sortBy=${this.sortBy}`);
+      const response = await fetch(
+        `http://localhost:8080/backend_war_exploded/ComputerServlet?search=${this.searchQuery}&sortBy=${this.sortBy}`,
+      );
       if (!response.ok) {
         throw new Error(`Failed to fetch computers: ${response.statusText}`);
       }
@@ -40,9 +42,13 @@ export default class ComputerController extends Controller {
   @action
   async showComputerDetails(computerName) {
     try {
-      const response = await fetch(`http://localhost:8080/backend_war_exploded/FetchComputerData?computerName=${computerName}`);
+      const response = await fetch(
+        `http://localhost:8080/backend_war_exploded/FetchComputerData?computerName=${computerName}`,
+      );
       if (!response.ok) {
-        throw new Error(`Failed to fetch computer details: ${response.statusText}`);
+        throw new Error(
+          `Failed to fetch computer details: ${response.statusText}`,
+        );
       }
       this.selectedComputer = await response.json();
     } catch (error) {
@@ -107,24 +113,28 @@ export default class ComputerController extends Controller {
     }
 
     try {
-      const response = await fetch('http://localhost:8080/backend_war_exploded/CreateComputerServlet', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
+      const response = await fetch(
+        'http://localhost:8080/backend_war_exploded/CreateComputerServlet',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            name: this.name,
+            description: this.description,
+            location: this.location,
+          }),
         },
-        body: JSON.stringify({
-          name: this.name,
-          description: this.description,
-          location: this.location
-        })
-      });
+      );
 
       const result = await response.json();
       if (result.status === 'success') {
         this.fetchComputers();
         this.closeNewComputerPopup();
       } else {
-        this.createComputerError = result.message || 'Failed to create computer!';
+        this.createComputerError =
+          result.message || 'Failed to create computer!';
       }
     } catch (error) {
       console.error('Error:', error);
@@ -134,7 +144,9 @@ export default class ComputerController extends Controller {
 
   @action
   confirmDelete(computerName) {
-    if (confirm(`Are you sure you want to delete the computer '${computerName}'?`)) {
+    if (
+      confirm(`Are you sure you want to delete the computer '${computerName}'?`)
+    ) {
       this.deleteComputer(computerName);
     }
   }
@@ -142,21 +154,25 @@ export default class ComputerController extends Controller {
   @action
   async deleteComputer(computerName) {
     try {
-      const response = await fetch('http://localhost:8080/backend_war_exploded/DeleteComputerServlet', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
+      const response = await fetch(
+        'http://localhost:8080/backend_war_exploded/DeleteComputerServlet',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            name: computerName,
+          }),
         },
-        body: JSON.stringify({
-          name: computerName
-        })
-      });
+      );
 
       const result = await response.json();
       if (result.status === 'success') {
         this.fetchComputers();
       } else {
-        this.deleteComputerError = result.message || 'Failed to delete computer!';
+        this.deleteComputerError =
+          result.message || 'Failed to delete computer!';
       }
     } catch (error) {
       console.error('Error:', error);

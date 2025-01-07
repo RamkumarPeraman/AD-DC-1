@@ -13,6 +13,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,7 +42,6 @@ public class UserDataServlet extends HttpServlet {
         } catch (Exception e) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             response.setContentType("application/json");
-//            response.getWriter().write("{\"error\":\"Invalid JSON format\"}");
             return;
         }
 
@@ -48,7 +50,6 @@ public class UserDataServlet extends HttpServlet {
         if (type == null || !data.containsKey("Users")) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             response.setContentType("application/json");
-//            response.getWriter().write("{\"error\":\"Invalid input: 'type' or 'users' key is missing\"}");
             return;
         }
 
@@ -63,36 +64,32 @@ public class UserDataServlet extends HttpServlet {
             for (JsonValue userValue : users) {
                 JsonObject user = userValue.asJsonObject();
                 String userName = user.getString("userName", null);
+                String whenCreatedStr = user.getString("whenCreated", null);
 
                 if (userName == null) {
                     failedInserts.add("null userName");
                     failedMessages.add("User name is missing");
                     continue;
                 }
+                if (whenCreatedStr == null) {
+                    failedInserts.add("null whenCreated");
+                    failedMessages.add("User name is missing");
+                    continue;
+                }
 
                 if (userExists(conn, userName)) {
                     failedInserts.add(userName);
-//                    failedMessages.add("User " + userName + " already exists");
                     response.getWriter().write("User already exists: " + userName + "\n");
-
                 } else {
-                    if (insertUser(conn, type, userName)) {
-//                        successfulInserts.add(userName);
+                    if (insertUser(conn, type, userName, whenCreatedStr)) {
                         response.getWriter().write("User Successfully inserted: " + userName + "\n");
-
                     } else {
-//                        failedInserts.add(userName);
-                        response.getWriter().write("failed to insert User: " + userName + "\n");
+                        response.getWriter().write("Failed to insert User: " + userName + "\n");
                     }
                 }
             }
             response.setStatus(HttpServletResponse.SC_OK);
             response.setContentType("application/json");
-//            JsonObjectBuilder jsonResponse = Json.createObjectBuilder()
-//                    .add("successfulInserts", Json.createArrayBuilder(successfulInserts))
-//                    .add("failedInserts", Json.createArrayBuilder(failedInserts))
-//                    .add("failedMessages", Json.createArrayBuilder(failedMessages));
-////            response.getWriter().write(jsonResponse.build().toString());
 
         } catch (SQLException e) {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -116,14 +113,31 @@ public class UserDataServlet extends HttpServlet {
         return false;
     }
 
-    private boolean insertUser(Connection conn, String type, String userName) throws SQLException {
-        String insertSql = "INSERT INTO act (type, name, isDeleted) VALUES (?, ?, 'NO')";
+    private boolean insertUser(Connection conn, String type, String userName, String whenCreated) throws SQLException {
+        String whenCreatedFormatted = convertDateFormat(whenCreated);
+        if (whenCreatedFormatted == null) {
+            return false;  // If the date format conversion failed, do not insert
+        }
+
+        String insertSql = "INSERT INTO act (type, name, isDeleted, whenCreated) VALUES (?, ?, 'NO', ?)";
         try (PreparedStatement insertStmt = conn.prepareStatement(insertSql)) {
             insertStmt.setString(1, type);
             insertStmt.setString(2, userName);
+            insertStmt.setString(3, whenCreatedFormatted);  // Use the formatted date
 
             int rowsInserted = insertStmt.executeUpdate();
             return rowsInserted > 0;
+        }
+    }
+    private String convertDateFormat(String whenCreatedStr) {
+        try {
+            SimpleDateFormat inputFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+            Date date = inputFormat.parse(whenCreatedStr);
+            SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            return outputFormat.format(date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 }

@@ -38,10 +38,10 @@ public class UserServlet extends HttpServlet {
                     sortBy = "name DESC";
                     break;
                 case "new-old":
-                    sortBy = "updated_time DESC";
+                    sortBy = "whenCreated DESC";
                     break;
                 case "old-new":
-                    sortBy = "updated_time ASC";
+                    sortBy = "whenCreated ASC";
                     break;
             }
         }

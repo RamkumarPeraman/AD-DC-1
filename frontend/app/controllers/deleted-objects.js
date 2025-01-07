@@ -14,10 +14,20 @@ export default class DeletedObjectsController extends Controller {
     }
     return this.deletedObjects.filter((obj) => {
       return (
-        (obj.userName && obj.userName.toLowerCase().includes(this.searchQuery.toLowerCase())) ||
-        (obj.groupName && obj.groupName.toLowerCase().includes(this.searchQuery.toLowerCase())) ||
-        (obj.computerName && obj.computerName.toLowerCase().includes(this.searchQuery.toLowerCase())) ||
-        (obj.ouName && obj.ouName.toLowerCase().includes(this.searchQuery.toLowerCase()))
+        (obj.userName &&
+          obj.userName
+            .toLowerCase()
+            .includes(this.searchQuery.toLowerCase())) ||
+        (obj.groupName &&
+          obj.groupName
+            .toLowerCase()
+            .includes(this.searchQuery.toLowerCase())) ||
+        (obj.computerName &&
+          obj.computerName
+            .toLowerCase()
+            .includes(this.searchQuery.toLowerCase())) ||
+        (obj.ouName &&
+          obj.ouName.toLowerCase().includes(this.searchQuery.toLowerCase()))
       );
     });
   }
@@ -26,10 +36,28 @@ export default class DeletedObjectsController extends Controller {
     let sortedObjects = [...this.filteredDeletedObjects];
     switch (this.sortBy) {
       case 'asc-desc':
-        sortedObjects.sort((a, b) => (a.userName || a.groupName || a.computerName || a.ouName).localeCompare(b.userName || b.groupName || b.computerName || b.ouName));
+        sortedObjects.sort((a, b) =>
+          (
+            a.userName ||
+            a.groupName ||
+            a.computerName ||
+            a.ouName
+          ).localeCompare(
+            b.userName || b.groupName || b.computerName || b.ouName,
+          ),
+        );
         break;
       case 'desc-asc':
-        sortedObjects.sort((a, b) => (b.userName || b.groupName || b.computerName || b.ouName).localeCompare(a.userName || a.groupName || a.computerName || a.ouName));
+        sortedObjects.sort((a, b) =>
+          (
+            b.userName ||
+            b.groupName ||
+            b.computerName ||
+            b.ouName
+          ).localeCompare(
+            a.userName || a.groupName || a.computerName || a.ouName,
+          ),
+        );
         break;
       case 'new-old':
         sortedObjects.sort((a, b) => new Date(b.date) - new Date(a.date));
