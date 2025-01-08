@@ -405,6 +405,7 @@ button[type="submit"]:active {
   position: absolute;
 }
 .group-name,
-.computer-name{
+.computer-name,
+.user-name{
   cursor: pointer;
 }

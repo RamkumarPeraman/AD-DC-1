@@ -28,21 +28,22 @@ export default class UsersController extends Controller {
   }
 
   @action
-  async fetchUsers() {
+  async fetchUsers(params = {}) {
+    params.sortBy = this.sortBy;
+    params.search = this.searchQuery;
+    const query = new URLSearchParams(params).toString();
+    const url = `http://localhost:8080/backend_war_exploded/UserServlet?${query}`;
+
     try {
-      console.log('Fetching users with search:', this.searchQuery, 'and sort:', this.sortBy);
-      const response = await fetch(
-        `http://localhost:8080/backend_war_exploded/UserServlet?search=${this.searchQuery}&sortBy=${this.sortBy}`,
-      );
+      const response = await fetch(url);
       if (!response.ok) {
         throw new Error(`Failed to fetch users: ${response.statusText}`);
       }
       const data = await response.json();
-      console.log('Fetched users:', data);
       this.users = data.users || [];
       this.totalCount = data.totalCount || 0;
     } catch (error) {
-      console.error('Error fetching users:', error);
+      console.error('Error fetching groups:', error);
       this.users = [];
       this.totalCount = 0;
     }
