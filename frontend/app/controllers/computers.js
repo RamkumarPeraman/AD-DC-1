@@ -14,6 +14,8 @@ export default class ComputerController extends Controller {
   @tracked isNewComputerPopupVisible = false;
   @tracked createComputerError = '';
   @tracked deleteComputerError = '';
+  @tracked isReportPopupVisible = false;
+  @tracked computerCreationData = {};
 
   constructor() {
     super(...arguments);
@@ -178,5 +180,78 @@ export default class ComputerController extends Controller {
       console.error('Error:', error);
       this.deleteComputerError = 'Failed to delete computer!';
     }
+  }
+
+  @action
+  async fetchComputerCreationData() {
+    const url = `http://localhost:8080/backend_war_exploded/ComputerCreationReportServlet`;
+
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch computer creation data: ${response.statusText}`);
+      }
+      const data = await response.json();
+      this.computerCreationData = data.data;
+      this.displayComputerReportChart();
+    } catch (error) {
+      console.error('Error fetching computer creation data:', error);
+    }
+  }
+
+  @action
+  openReportPopup() {
+    this.isReportPopupVisible = true;
+    this.fetchComputerCreationData();
+  }
+
+  @action
+  closeReportPopup() {
+    this.isReportPopupVisible = false;
+  }
+
+  displayComputerReportChart() {
+    const ctx = document.getElementById('computerReportChart').getContext('2d');
+    const labels = Object.keys(this.computerCreationData);
+    const data = Object.values(this.computerCreationData).map(item => item.count);
+
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Computers Created',
+          data: data,
+          borderColor: 'rgba(75, 192, 192, 1)',
+          borderWidth: 2,
+          fill: false
+        }]
+      },
+      options: {
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: 'Days'
+            }
+          },
+          y: {
+            title: {
+              display: true,
+              text: 'Count'
+            }
+          }
+        },
+        tooltips: {
+          callbacks: {
+            label: (tooltipItem) => {
+              const day = labels[tooltipItem.index];
+              const count = data[tooltipItem.index];
+              return `Date: ${day}\nCount: ${count}`;
+            }
+          }
+        }
+      }
+    });
   }
 }

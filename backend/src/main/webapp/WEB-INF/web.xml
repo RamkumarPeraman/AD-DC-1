@@ -234,7 +234,23 @@
         <url-pattern>/FetchGroupNamesForDayServlet/*</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>ComputerCreationReportServlet</servlet-name>
+        <servlet-class>com.example.act_dir.graph.ComputerCreationReportServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ComputerCreationReportServlet</servlet-name>
+        <url-pattern>/ComputerCreationReportServlet/*</url-pattern>
+    </servlet-mapping>
 
+    <servlet>
+        <servlet-name>FetchComputerNamesForDayServlet</servlet-name>
+        <servlet-class>com.example.act_dir.graph.FetchComputerNamesForDayServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>FetchComputerNamesForDayServlet</servlet-name>
+        <url-pattern>/FetchComputerNamesForDayServlet/*</url-pattern>
+    </servlet-mapping>
 
     <servlet>
         <servlet-name>FetchLastModUsr</servlet-name>
@@ -243,5 +259,14 @@
     <servlet-mapping>
         <servlet-name>FetchLastModUsr</servlet-name>
         <url-pattern>/FetchLastModUsr/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>FetchLastModComp</servlet-name>
+        <servlet-class>com.example.act_dir.last_mod.FetchLastModComp</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>FetchLastModComp</servlet-name>
+        <url-pattern>/FetchLastModComp/*</url-pattern>
     </servlet-mapping>
 </web-app>

@@ -21,6 +21,7 @@
   <p class="total-count">Total : <b>{{this.totalCount}}</b></p>
 
   <button class="new-button" type="button" {{on "click" this.openNewComputerPopup}}>New Computer</button>
+  <button class="report-button" type="button" {{on "click" this.openReportPopup}}>Report</button>
 
   <div class="tiles">
     {{#each this.computers as |computer|}}
@@ -28,7 +29,7 @@
         <a href="#" {{on "click" (fn this.showComputerDetails computer.name)}}>
           <img src="../asset/computer.png" alt="computer" class="g_icon" /><br>{{computer.name}}
         </a>
-        <p class="delete-button" {{on "click" (fn this.confirmDelete computer.name)}}><img src="../asset/dlt.png" alt="Home" class="dlt" /></p>        
+        <p class="delete-button" {{on "click" (fn this.confirmDelete computer.name)}}><img src="../asset/dlt.png" alt="Delete" class="dlt" /></p>        
       </div>
     {{else}}
       <h3 class="not_found">No computers found</h3>
@@ -78,6 +79,46 @@
             <div class="error-message">{{this.createComputerError}}</div>
           {{/if}}
         </div>
+      </div>
+    </div>
+  {{/if}}
+
+  {{#if this.isReportPopupVisible}}
+    <div class="popup">
+      <div class="popup-content">
+        <button class="close-button" type="button" {{on "click" this.closeReportPopup}}>X</button>
+        <h2>Computer Creation Report</h2>
+        <canvas id="computerReportChart"></canvas>
+      </div>
+    </div>
+  {{/if}}
+
+  {{#if this.isComputerDetailsPopupVisible}}
+    <div class="popup">
+      <div class="popup-content">
+        <button class="close-button" type="button" {{on "click" this.closeComputerDetailsPopup}}>X</button>
+        <h2>Computers</h2>
+        <ul>
+          {{#each this.computerDetails as |computer|}}
+            <li>
+              <p class="computer-name" {{on "click" (fn this.showLastModDetails computer.name)}}>{{computer.name}}</p>
+            </li>
+          {{/each}}
+        </ul>
+      </div>
+    </div>
+  {{/if}}
+
+  {{#if this.selectedLastComputer}}
+    <div class="popup">
+      <div class="popup-content">
+        <button class="close-button" type="button" {{on "click" this.closePopup}}>X</button>
+        <p><strong>Computer Name:</strong> {{this.selectedLastComputer.name}}</p>
+        <p><strong>Last Modified Field:</strong> {{this.selectedLastComputer.lastModifiedField}}</p>
+        <p><strong>Modified as:</strong> {{this.selectedLastComputer.value}}</p>
+        <p><strong>uSNChanged:</strong> {{this.selectedLastComputer.uSNChanged}}</p>
+        <p><strong>Created On:</strong> {{this.selectedLastComputer.whenCreated}}</p>
+        <p><strong>Last Changed:</strong> {{this.selectedLastComputer.whenChanged}}</p>
       </div>
     </div>
   {{/if}}
