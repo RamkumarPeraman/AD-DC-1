@@ -404,6 +404,7 @@ button[type="submit"]:active {
   margin-top: -12.5%;
   position: absolute;
 }
-.group-name{
+.group-name,
+.computer-name{
   cursor: pointer;
 }

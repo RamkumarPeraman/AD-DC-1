@@ -43,20 +43,13 @@ string convertToIST(const string& utcTime) {
         cerr << "Failed to parse time: " << utcTime << endl;
         return utcTime;
     }
-
     time_t timeUtc = mktime(&tm);
-
-    // Add 5 hours 30 minutes for IST, then subtract 12 hours and 1 hour 30 minutes
     time_t timeIst = timeUtc + (5 * 60 * 60) + (30 * 60) - (12 * 60 * 60) - (1 * 60 * 60) - (30 * 60);
-
     std::tm* istTm = std::localtime(&timeIst);
     ostringstream oss;
     oss << put_time(istTm, "%Y-%m-%d %H:%M:%S");
     return oss.str();
 }
-
-
-
 map<string, string> fetchAttributes(const string& groupName) {
     map<string, string> attributes;
     string filter = "(cn=" + groupName + ")";
@@ -77,7 +70,6 @@ map<string, string> fetchAttributes(const string& groupName) {
             if (values != NULL) {
                 string value = values[0]->bv_val;
                 if (string(attribute) == "whenCreated" || string(attribute) == "whenChanged") {
-                    // Convert time to IST if it's a time field
                     attributes[attribute] = convertToIST(value);
                 } else {
                     attributes[attribute] = value;
@@ -94,7 +86,6 @@ map<string, string> fetchAttributes(const string& groupName) {
     ldap_msgfree(result);
     return attributes;
 }
-
 string compareAttributes(const string& groupName, const map<string, string>& previousState) {
     auto currentAttributes = fetchAttributes(groupName);
     for (const auto& [key, value] : currentAttributes) {
@@ -124,7 +115,7 @@ int main(int argc, char* argv[]) {
 
     ofstream outputFile("state.txt");
     auto currentState = fetchAttributes(groupName);
-    for (const auto& [key, value] : currentState) {
+    for (const auto& [key, value] : currentState){
         outputFile << key << " " << value << endl;
     }
     outputFile.close();

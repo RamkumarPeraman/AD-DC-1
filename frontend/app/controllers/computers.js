@@ -5,6 +5,7 @@ import { tracked } from '@glimmer/tracking';
 export default class ComputerController extends Controller {
   @tracked computers = [];
   @tracked selectedComputer = null;
+  @tracked selectedLastComputer = null;
   @tracked sortBy = '';
   @tracked searchQuery = '';
   @tracked totalCount = 0;
@@ -12,10 +13,12 @@ export default class ComputerController extends Controller {
   @tracked description = '';
   @tracked location = '';
   @tracked isNewComputerPopupVisible = false;
+  @tracked isComputerDetailsPopupVisible = false;
   @tracked createComputerError = '';
   @tracked deleteComputerError = '';
   @tracked isReportPopupVisible = false;
   @tracked computerCreationData = {};
+  @tracked computerDetails = [];
 
   constructor() {
     super(...arguments);
@@ -42,6 +45,62 @@ export default class ComputerController extends Controller {
   }
 
   @action
+  async fetchComputerCreationData() {
+    const url = `http://localhost:8080/backend_war_exploded/ComputerCreationReportServlet`;
+
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch computer creation data: ${response.statusText}`);
+      }
+      const data = await response.json();
+      this.computerCreationData = data.data;
+      this.displayComputerReportChart();
+    } catch (error) {
+      console.error('Error fetching computer creation data:', error);
+    }
+  }
+
+  @action
+  openReportPopup() {
+    this.isReportPopupVisible = true;
+    this.fetchComputerCreationData();
+  }
+  @action
+  closeReportPopup() {
+    this.isReportPopupVisible = false;
+  }
+
+
+  @action
+  async showComputersForDay(day) {
+    console.log('Fetching computers for the day:', day);
+    try {
+      const response = await fetch(
+        `http://localhost:8080/backend_war_exploded/FetchComputerNamesForDayServlet?day=${day}`,
+      );
+      if (!response.ok) {
+        throw new Error(
+          `Failed to fetch groups for the day: ${response.statusText}`,
+        );
+      }
+      const computerDetails = await response.json();
+      this.computerDetails = computerDetails.computers;
+      this.isComputerDetailsPopupVisible = true;
+    } catch (error) {
+      console.error('Error fetching computers for the day:', error);
+    }
+    console.log('hi',this.computerDetails);
+  }
+
+  @action
+  closeComputerDetailsPopup() {
+    this.isComputerDetailsPopupVisible = false;
+    this.computerDetails = [];
+  }
+
+
+  @action
   async showComputerDetails(computerName) {
     try {
       const response = await fetch(
@@ -60,36 +119,34 @@ export default class ComputerController extends Controller {
   }
 
   @action
+  async showLastModDetails(computerName) {
+    console.log('Fetching last modified details for computer:', computerName);
+    try {
+      const response = await fetch(`http://localhost:8080/backend_war_exploded/FetchLastModComp?objName=${computerName}`);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch last modified details: ${response.statusText}`);
+      }
+      const data = await response.json();
+      this.selectedLastComputer = {
+        name: data.name || 'No Name Found',
+        lastModifiedField: data.lastModifiedField || 'No Field Found',
+        value: data.value || 'No Value Found',
+        uSNChanged: data.uSNChanged || 'No uSNChanged Found',
+        whenCreated: data.whenCreated || 'No whenCreated Found',
+        whenChanged: data.whenChanged || 'No whenChanged Found',
+      };
+    } catch (error) {
+      console.error('Error fetching last modified details:', error);
+    }
+    console.log('hi',this.selectedLastComputer);
+  }
+
+
+  @action
   closePopup() {
     this.selectedComputer = null;
+    this.selectedLastComputer = null;
   }
-
-  @action
-  updateSortBy(event) {
-    this.sortBy = event.target.value;
-    this.fetchComputers();
-  }
-
-  @action
-  updateSearchQuery(event) {
-    this.searchQuery = event.target.value;
-    this.fetchComputers();
-  }
-
-  @action
-  openNewComputerPopup() {
-    this.isNewComputerPopupVisible = true;
-  }
-
-  @action
-  closeNewComputerPopup() {
-    this.isNewComputerPopupVisible = false;
-    this.name = '';
-    this.description = '';
-    this.location = '';
-    this.createComputerError = '';
-  }
-
   @action
   updateName(event) {
     this.name = event.target.value;
@@ -182,34 +239,6 @@ export default class ComputerController extends Controller {
     }
   }
 
-  @action
-  async fetchComputerCreationData() {
-    const url = `http://localhost:8080/backend_war_exploded/ComputerCreationReportServlet`;
-
-    try {
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch computer creation data: ${response.statusText}`);
-      }
-      const data = await response.json();
-      this.computerCreationData = data.data;
-      this.displayComputerReportChart();
-    } catch (error) {
-      console.error('Error fetching computer creation data:', error);
-    }
-  }
-
-  @action
-  openReportPopup() {
-    this.isReportPopupVisible = true;
-    this.fetchComputerCreationData();
-  }
-
-  @action
-  closeReportPopup() {
-    this.isReportPopupVisible = false;
-  }
-
   displayComputerReportChart() {
     const ctx = document.getElementById('computerReportChart').getContext('2d');
     const labels = Object.keys(this.computerCreationData);
@@ -242,6 +271,18 @@ export default class ComputerController extends Controller {
             }
           }
         },
+        onClick: (event, elements) => {
+          console.log('Clicked on:', elements);
+          console.log('Labels:', labels);
+          console.log('Data:', data);
+          if (elements.length > 0) {
+            const index = elements[0]._index;
+            console.log('Index:', index);
+            const day = labels[index];
+            console.log('Day:', day);
+            this.showComputersForDay(day);
+          }
+        },
         tooltips: {
           callbacks: {
             label: (tooltipItem) => {
@@ -253,5 +294,31 @@ export default class ComputerController extends Controller {
         }
       }
     });
+  }
+
+  @action
+  updateSortBy(event) {
+    this.sortBy = event.target.value;
+    this.fetchComputers();
+  }
+
+  @action
+  updateSearchQuery(event) {
+    this.searchQuery = event.target.value;
+    this.fetchComputers();
+  }
+
+  @action
+  openNewComputerPopup() {
+    this.isNewComputerPopupVisible = true;
+  }
+
+  @action
+  closeNewComputerPopup() {
+    this.isNewComputerPopupVisible = false;
+    this.name = '';
+    this.description = '';
+    this.location = '';
+    this.createComputerError = '';
   }
 }
