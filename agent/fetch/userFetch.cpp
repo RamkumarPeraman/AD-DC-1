@@ -43,9 +43,8 @@ string convertToIndianFormat(const string& ldapTime) {
 }
 
 string getUserDetails(const string& displayName) {
-    // Using displayName in the filter
     string filter = "(displayName=" + displayName + ")";
-    cout << "Using filter: " << filter << endl; // Log the filter
+    cout << "Using filter: " << filter << endl; 
 
     LDAPMessage* result = nullptr;
     const char* attrs[] = {"description", "mail", "telephoneNumber", "streetAddress", "postOfficeBox", "l", "st", "postalCode", "co", "whenCreated", "whenChanged", NULL}; // Specify attributes to fetch

@@ -234,4 +234,14 @@
         <url-pattern>/FetchGroupNamesForDayServlet/*</url-pattern>
     </servlet-mapping>
 
+
+
+    <servlet>
+        <servlet-name>FetchLastModUsr</servlet-name>
+        <servlet-class>com.example.act_dir.last_mod.FetchLastModUsr</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>FetchLastModUsr</servlet-name>
+        <url-pattern>/FetchLastModUsr/*</url-pattern>
+    </servlet-mapping>
 </web-app>

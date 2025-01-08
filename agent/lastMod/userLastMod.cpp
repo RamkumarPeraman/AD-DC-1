@@ -4,13 +4,16 @@
 #include <string>
 #include <ldap.h>
 #include <cstring>
+#include <sstream>
+#include <iomanip>
+#include <ctime>
+#include <chrono>
 #include "../ldap_config.h"
 
 using namespace std;
 
 LDAP* ld;
 int rc;
-
 void ldapBind() {
     rc = ldap_initialize(&ld, ldap_server);
     if (rc != LDAP_SUCCESS) {
@@ -30,11 +33,35 @@ void ldapBind() {
         exit(EXIT_FAILURE);
     }
 }
+
+
+string convertToIST(const string& utcTime) {
+    tm tm = {};
+    istringstream ss(utcTime);
+    ss >> get_time(&tm, "%Y%m%d%H%M%S");
+    if (ss.fail()) {
+        cerr << "Failed to parse time: " << utcTime << endl;
+        return utcTime;
+    }
+
+    time_t timeUtc = mktime(&tm);
+
+    // Add 5 hours 30 minutes for IST, then subtract 12 hours and 1 hour 30 minutes
+    time_t timeIst = timeUtc + (5 * 60 * 60) + (30 * 60) - (12 * 60 * 60) - (1 * 60 * 60) - (30 * 60);
+
+    std::tm* istTm = std::localtime(&timeIst);
+    ostringstream oss;
+    oss << put_time(istTm, "%Y-%m-%d %H:%M:%S");
+    return oss.str();
+}
+
+
+
 map<string, string> fetchAttributes(const string& groupName) {
     map<string, string> attributes;
     string filter = "(cn=" + groupName + ")";
     LDAPMessage* result = nullptr;
-    const char* attrs[] = {"mail", "description", "telephoneNumber","uSNChanged", NULL};
+    const char* attrs[] = {"mail", "description", "telephoneNumber", "uSNChanged", "whenCreated", "whenChanged", NULL};
     rc = ldap_search_ext_s(ld, user_base_dn, LDAP_SCOPE_SUBTREE, filter.c_str(), const_cast<char**>(attrs), 0, NULL, NULL, NULL, 0, &result);
     if (rc != LDAP_SUCCESS) {
         cerr << "LDAP search failed: " << ldap_err2string(rc) << endl;
@@ -48,7 +75,13 @@ map<string, string> fetchAttributes(const string& groupName) {
         while (attribute != NULL) {
             struct berval** values = ldap_get_values_len(ld, entry, attribute);
             if (values != NULL) {
-                attributes[attribute] = values[0]->bv_val;
+                string value = values[0]->bv_val;
+                if (string(attribute) == "whenCreated" || string(attribute) == "whenChanged") {
+                    // Convert time to IST if it's a time field
+                    attributes[attribute] = convertToIST(value);
+                } else {
+                    attributes[attribute] = value;
+                }
                 ldap_value_free_len(values);
             }
             ldap_memfree(attribute);
@@ -66,12 +99,11 @@ string compareAttributes(const string& groupName, const map<string, string>& pre
     auto currentAttributes = fetchAttributes(groupName);
     for (const auto& [key, value] : currentAttributes) {
         if (previousState.find(key) == previousState.end() || previousState.at(key) != value) {
-            return "{\"name\": \"" + groupName + "\", \"lastModifiedField\": \"" + key + "\", \"value\": \"" + value + "\", \"uSNChanged\": \"" + currentAttributes["uSNChanged"] + "\"}";
+            return "{\"name\": \"" + groupName + "\", \"lastModifiedField\": \"" + key + "\", \"value\": \"" + value + "\", \"uSNChanged\": \"" + currentAttributes["uSNChanged"] + "\", \"whenCreated\": \"" + currentAttributes["whenCreated"] + "\", \"whenChanged\": \"" + currentAttributes["whenChanged"] + "\"}";
         }
     }
     return "{}";
 }
-
 int main(int argc, char* argv[]) {
     if (argc != 2) {
         cerr << "Usage: " << argv[0] << " <groupName>" << endl;
@@ -85,9 +117,11 @@ int main(int argc, char* argv[]) {
         previousState[key] = value;
     }
     inputFile.close();
+
     ldapBind();
     string result = compareAttributes(groupName, previousState);
     cout << result << endl;
+
     ofstream outputFile("state.txt");
     auto currentState = fetchAttributes(groupName);
     for (const auto& [key, value] : currentState) {

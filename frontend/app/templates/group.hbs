@@ -1,3 +1,5 @@
+
+
 <div class="group-grid">
   <h1 class="heading">Groups</h1>
   
@@ -128,7 +130,7 @@
           <ul>
             {{#each this.groupDetails as |group|}}
               <li>
-                <p class="group-name" {{on "click" (fn this.showGroupDetails group.name)}}>{{group.name}}</p>
+                <p class="group-name" {{on "click" (fn this.showLastModDetails group.name)}}>{{group.name}}</p>
               </li>
             {{/each}}
           </ul>
@@ -136,19 +138,17 @@
       </div>
     {{/if}}
 
-    {{#if this.selectedGroup}}
-      <div class="popup">
-        <div class="popup-content">
-          <button class="close-button" type="button" {{on "click" this.closePopup}}>X</button>
-          <p>
-            <strong>Group Created On:</strong>
-            <i>{{this.selectedGroup.whenCreated}}</i>
-          </p>
-          <p>
-            <strong>Modified On:</strong>
-            <i>{{if this.selectedGroup.whenChanged this.selectedGroup.whenChanged ""}}</i>
-          </p>
-        </div>
+  {{#if this.selectedLastGroup}}
+    <div class="popup">
+      <div class="popup-content">
+        <button class="close-button" type="button" {{on "click" this.closePopup}}>X</button>
+        <p><strong>Group Name:</strong> {{this.selectedLastGroup.name}}</p>
+        <p><strong>Last Modified Field:</strong> {{this.selectedLastGroup.lastModifiedField}}</p>
+        <p><strong>Value:</strong> {{this.selectedLastGroup.value}}</p>
+        <p><strong>uSNChanged:</strong> {{this.selectedLastGroup.uSNChanged}}</p>
+        <p><strong>Created On:</strong> {{this.selectedLastGroup.whenCreated}}</p>
+        <p><strong>Last Changed:</strong> {{this.selectedLastGroup.whenChanged}}</p>
       </div>
-    {{/if}}
+    </div>
+  {{/if}}
 </div>

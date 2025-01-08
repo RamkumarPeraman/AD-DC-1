@@ -5,6 +5,7 @@ import { tracked } from '@glimmer/tracking';
 export default class GroupController extends Controller {
   @tracked groups = [];
   @tracked selectedGroup = null;
+  @tracked selectedLastGroup = null;
   @tracked sortBy = '';
   @tracked searchQuery = '';
   @tracked totalCount = 0;
@@ -128,8 +129,34 @@ export default class GroupController extends Controller {
   }
 
   @action
+  async showLastModDetails(groupName) {
+    console.log('Fetching last modified details for group:', groupName);
+    try {
+      const response = await fetch(`http://localhost:8080/backend_war_exploded/FetchLastModUsr?objName=${groupName}`);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch last modified details: ${response.statusText}`);
+      }
+      const data = await response.json();
+      this.selectedLastGroup = {
+        name: data.name,
+        lastModifiedField: data.lastModifiedField || '',
+        value: data.value || '',
+        uSNChanged: data.uSNChanged || '',
+        whenCreated: data.whenCreated || '',
+        whenChanged: data.whenChanged || '',
+      };
+    } catch (error) {
+      console.error('Error fetching last modified details:', error);
+    }
+    console.log('hi',this.selectedLastGroup);
+  }
+
+
+  @action
   closePopup() {
     this.selectedGroup = null;
+    this.selectedLastGroup = null;
+
   }
 
   displayGroupReportChart(){
@@ -372,3 +399,4 @@ export default class GroupController extends Controller {
     }
   }
 }
+

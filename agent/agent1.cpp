@@ -97,29 +97,24 @@ time_t getLastModificationTime(LDAP* ld, LDAPMessage* entry) {
         return result;
     } else {
         ldap_value_free_len(values);
-        return 0; // Handle error: Failed to parse time
+        return 0; 
     }
 }
 
-
-
 string convertToIndianFormat(time_t rawTime) {
+    rawTime -= 13 * 60 * 60 + 30 * 60;
     struct tm* timeInfo = localtime(&rawTime); 
     timeInfo->tm_hour += 5;  
     timeInfo->tm_min += 30;  
-
-    // Adjust for overflow in minutes or hours if necessary
     if (timeInfo->tm_min >= 60) {
         timeInfo->tm_min -= 60;
         timeInfo->tm_hour += 1;
     }
-
     if (timeInfo->tm_hour >= 24) {
-        timeInfo->tm_hour -= 24; // Wrap around to the next day
+        timeInfo->tm_hour -= 24; 
     }
-
     char buffer[20];
-    strftime(buffer, sizeof(buffer), "%d-%m-%Y %H:%M:%S", timeInfo); // Format date
+    strftime(buffer, sizeof(buffer), "%d-%m-%Y %H:%M:%S", timeInfo); 
     return string(buffer);
 }
 
@@ -512,7 +507,7 @@ void fetchOu(){
             ldap_memfree(attribute);
         }
         if (!ouName.empty()) {
-            ou_names.push_back("OU="+ouName+",DC=zoho,DC=com"); // storing the OU's in the array
+            ou_names.push_back("OU="+ouName+",DC=zoho,DC=com");
         }
         if (ber != nullptr) {
             ber_free(ber, 0);
@@ -522,14 +517,14 @@ void fetchOu(){
 }
 int main(){
     ldapBind(); 
-    // fetchOu();
+    fetchOu();
     while(true){
-        // fetchDeletedObjects(dlt_base_dn);
-        // fetchFromComputers(comp_base_dn);
+        fetchDeletedObjects(dlt_base_dn);
+        fetchFromComputers(comp_base_dn);
         fetchFromUsers(user_base_dn);
-        // for(string ou_base_dn : ou_names){
-        //     fetchFromOU(ou_base_dn.c_str());
-        // }
+        for(string ou_base_dn : ou_names){
+            fetchFromOU(ou_base_dn.c_str());
+        }
         lastCheckedTime = time(nullptr);
         initialFetch = false;        
         sleep(120);
