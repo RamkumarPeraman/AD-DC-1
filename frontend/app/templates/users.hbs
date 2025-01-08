@@ -119,10 +119,24 @@
         <ul>
           {{#each this.userDetails as |user|}}
             <li>
-              <p class="user-name" {{on "click" (fn this.showUserDetails user.name)}}>{{user.name}}</p>
+              <p class="user-name" {{on "click" (fn this.showLastModDetails user.name)}}>{{user.name}}</p>
             </li>
           {{/each}}
         </ul>
+      </div>
+    </div>
+  {{/if}}
+
+    {{#if this.selectedLastUser}}
+    <div class="popup">
+      <div class="popup-content">
+        <button class="close-button" type="button" {{on "click" this.closePopup}}>X</button>
+        <p><strong>User Name:</strong> {{this.selectedLastUser.name}}</p>
+        <p><strong>Last Modified Field:</strong> {{this.selectedLastUser.lastModifiedField}}</p>
+        <p><strong>Modified as:</strong> {{this.selectedLastUser.value}}</p>
+        <p><strong>uSNChanged:</strong> {{this.selectedLastUser.uSNChanged}}</p>
+        <p><strong>Created On:</strong> {{this.selectedLastUser.whenCreated}}</p>
+        <p><strong>Last Changed:</strong> {{this.selectedLastUser.whenChanged}}</p>
       </div>
     </div>
   {{/if}}

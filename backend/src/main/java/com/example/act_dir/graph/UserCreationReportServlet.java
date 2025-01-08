@@ -12,7 +12,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import com.example.act_dir.db.DBConnection;
 
-public class ComputerCreationReportServlet extends HttpServlet {
+public class UserCreationReportServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -28,14 +28,14 @@ public class ComputerCreationReportServlet extends HttpServlet {
         response.setContentType("application/json");
 
         try (PrintWriter out = response.getWriter()) {
-            String jsonData = getComputerCreationDataAsJson();
+            String jsonData = getUserCreationDataAsJson();
             out.write(jsonData);
         }
     }
 
-    private String getComputerCreationDataAsJson() {
+    private String getUserCreationDataAsJson() {
         StringBuilder jsonData = new StringBuilder("{ \"data\":{");
-        String query = "SELECT DATE(whenCreated) as createdDate, COUNT(*) as count " + "FROM act WHERE type = 'computer' AND isDeleted = 'NO' " + "GROUP BY DATE(whenCreated) ORDER BY DATE(whenCreated)";
+        String query = "SELECT DATE(whenCreated) as createdDate, COUNT(*) as count " + "FROM act WHERE type = 'User' AND isDeleted = 'NO' " + "GROUP BY DATE(whenCreated) ORDER BY DATE(whenCreated)";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query);
@@ -53,6 +53,7 @@ public class ComputerCreationReportServlet extends HttpServlet {
             e.printStackTrace();
             return "{\"error\":\"Database error\"}";
         }
+//        System.out.println(jsonData);
         return jsonData.toString();
     }
 }

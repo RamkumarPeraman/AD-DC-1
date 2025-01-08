@@ -253,6 +253,24 @@
     </servlet-mapping>
 
     <servlet>
+        <servlet-name>UserCreationReportServlet</servlet-name>
+        <servlet-class>com.example.act_dir.graph.UserCreationReportServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>UserCreationReportServlet</servlet-name>
+        <url-pattern>/UserCreationReportServlet/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>FetchUserNamesForDayServlet</servlet-name>
+        <servlet-class>com.example.act_dir.graph.FetchUserNamesForDayServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>FetchUserNamesForDayServlet</servlet-name>
+        <url-pattern>/FetchUserNamesForDayServlet/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
         <servlet-name>FetchLastModUsr</servlet-name>
         <servlet-class>com.example.act_dir.last_mod.FetchLastModUsr</servlet-class>
     </servlet>

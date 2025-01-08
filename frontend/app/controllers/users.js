@@ -5,6 +5,7 @@ import { tracked } from '@glimmer/tracking';
 export default class UsersController extends Controller {
   @tracked users = [];
   @tracked selectedUser = null;
+  @tracked selectedLastUser = null;
   @tracked sortBy = '';
   @tracked searchQuery = '';
   @tracked totalCount = 0;
@@ -66,8 +67,32 @@ export default class UsersController extends Controller {
   }
 
   @action
+  async showLastModDetails(displayName) {
+    console.log('Fetching last modified details for Users:', displayName);
+    try {
+      const response = await fetch(`http://localhost:8080/backend_war_exploded/FetchLastModUsr?objName=${displayName}`);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch last modified details: ${response.statusText}`);
+      }
+      const data = await response.json();
+      this.selectedLastUser = {
+        name: data.name || 'No Name Found',
+        lastModifiedField: data.lastModifiedField || 'No Field Found',
+        value: data.value || 'No Value Found',
+        uSNChanged: data.uSNChanged || 'No uSNChanged Found',
+        whenCreated: data.whenCreated || 'No whenCreated Found',
+        whenChanged: data.whenChanged || 'No whenChanged Found',
+      };
+    } catch (error) {
+      console.error('Error fetching last modified details:', error);
+    }
+    console.log('hi',this.selectedLastUser);
+  }
+
+  @action
   closePopup() {
     this.selectedUser = null;
+    this.selectedLastUser = null;
   }
 
   @action
@@ -268,7 +293,7 @@ export default class UsersController extends Controller {
         },
         onClick: (event, elements) => {
           if (elements.length > 0) {
-            const index = elements[0].index;
+            const index = elements[0]._index;
             const day = labels[index];
             this.showUsersForDay(day);
           }
@@ -288,6 +313,7 @@ export default class UsersController extends Controller {
 
   @action
   async showUsersForDay(day) {
+    console.log('Fetching users for day:', day);
     try {
       const response = await fetch(
         `http://localhost:8080/backend_war_exploded/FetchUserNamesForDayServlet?day=${day}`,
@@ -297,12 +323,18 @@ export default class UsersController extends Controller {
           `Failed to fetch users for the day: ${response.statusText}`,
         );
       }
+      console.log('Response:', response);
       const userDetails = await response.json();
-      this.userDetails = userDetails.users;
+
+      console.log('User details:', userDetails);
+      this.userDetails = userDetails.Users;
       this.isUserDetailsPopupVisible = true;
     } catch (error) {
       console.error('Error fetching users for the day:', error);
     }
+
+    console.log('Users for day:', day);
+    console.log('User details:', this.userDetails);
   }
 
   @action

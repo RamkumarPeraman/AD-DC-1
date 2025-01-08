@@ -12,7 +12,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import com.example.act_dir.db.DBConnection;
 
-public class ComputerCreationReportServlet extends HttpServlet {
+public class FetchUserNamesForDayServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -27,32 +27,42 @@ public class ComputerCreationReportServlet extends HttpServlet {
 
         response.setContentType("application/json");
 
+        String day = request.getParameter("day");
+        if (day == null) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Day parameter is missing");
+            return;
+        }
+
         try (PrintWriter out = response.getWriter()) {
-            String jsonData = getComputerCreationDataAsJson();
+            String jsonData = getUserNamesForDayAsJson(day);
             out.write(jsonData);
         }
     }
 
-    private String getComputerCreationDataAsJson() {
-        StringBuilder jsonData = new StringBuilder("{ \"data\":{");
-        String query = "SELECT DATE(whenCreated) as createdDate, COUNT(*) as count " + "FROM act WHERE type = 'computer' AND isDeleted = 'NO' " + "GROUP BY DATE(whenCreated) ORDER BY DATE(whenCreated)";
+    private String getUserNamesForDayAsJson(String day) {
+        System.out.println(day);
+        StringBuilder jsonData = new StringBuilder("{ \"Users\":[");
+        String query = "SELECT name, whenCreated FROM act WHERE type = 'User' AND isDeleted = 'NO' AND DATE(whenCreated) = ?";
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(query);
-             ResultSet rs = pstmt.executeQuery()) {
-            while (rs.next()) {
-                String date = rs.getString("createdDate");
-                int count = rs.getInt("count");
-                jsonData.append("\"").append(date).append("\":{ \"count\":").append(count).append("},");
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setString(1, day);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()){
+                    String name = rs.getString("name");
+                    String whenCreated = rs.getString("whenCreated");
+                    jsonData.append("{\"name\":\"").append(name).append("\",\"whenCreated\":\"").append(whenCreated).append("\"},");
+                }
+                if (jsonData.charAt(jsonData.length() - 1) == ',') {
+                    jsonData.setLength(jsonData.length() - 1);
+                }
+                jsonData.append("]}");
             }
-            if (jsonData.charAt(jsonData.length() - 1) == ',') {
-                jsonData.setLength(jsonData.length() - 1);
-            }
-            jsonData.append("}}");
         } catch (SQLException e) {
             e.printStackTrace();
             return "{\"error\":\"Database error\"}";
         }
+        System.out.println(jsonData.toString());
         return jsonData.toString();
     }
 }
