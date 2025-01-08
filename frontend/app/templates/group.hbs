@@ -1,5 +1,6 @@
 <div class="group-grid">
   <h1 class="heading">Groups</h1>
+  
   <div class="search-options">
     <div class="search-wrapper">
       <img src="../asset/search.png" alt="Group" class="search_icon" />
@@ -17,10 +18,12 @@
     </select>
   </div>
 
-  <p class="total-count">Total : <b>{{this.totalCount}}</b></p>
+  <p class="total-count">Total: <b>{{this.totalCount}}</b></p>
 
   <button class="new-button" type="button" {{on "click" this.openNewGroupPopup}}>New Group</button>
   <button class="add-user-button" type="button" {{on "click" this.openAddUserPopup}}>Add Group Members</button>
+
+  <button class="report-button" type="button" {{on "click" this.openReportPopup}}>Report</button>
 
   <div class="tiles">
     {{#each this.groups as |group|}}
@@ -28,8 +31,7 @@
         <a href="#" {{on "click" (fn this.showGroupDetails group.name)}}>
           <img src="../asset/group.png" alt="Group" class="g_icon" /><br>{{group.name}}
         </a>
-        <p class="delete-button" {{on "click" (fn this.confirmDelete group.name)}}><img src="../asset/dlt.png" alt="Home" class="dlt" /></p>        
-
+        <p class="delete-button" {{on "click" (fn this.confirmDelete group.name)}}><img src="../asset/dlt.png" alt="Delete" class="dlt" /></p>
       </div>
     {{else}}
       <h3 class="not_found">No groups found</h3>
@@ -43,27 +45,15 @@
         <button class="close-button" type="button" {{on "click" this.closePopup}}>X</button>
         <p>
           <strong>Group Name:</strong>
-          {{#if this.selectedGroup.name}}
-            <i>{{this.selectedGroup.name}}</i>
-          {{else}}
-            <i>No Group Name found</i>
-          {{/if}}
+          <i>{{this.selectedGroup.name}}</i>
         </p>
         <p>
           <strong>Description:</strong>
-          {{#if this.selectedGroup.description}}
-            <i>{{this.selectedGroup.description}}</i>
-          {{else}}
-            <i>No Description found</i>
-          {{/if}}
+          <i>{{if this.selectedGroup.description this.selectedGroup.description ""}}</i>
         </p>
         <p>
           <strong>Mail:</strong>
-          {{#if this.selectedGroup.mail}}
-            <i>{{this.selectedGroup.mail}}</i>
-          {{else}}
-            <i>No mail found</i>
-          {{/if}}
+          <i>{{if this.selectedGroup.mail this.selectedGroup.mail ""}}</i>
         </p>
       </div>
     </div>
@@ -87,9 +77,9 @@
           <button type="submit">Create Group</button>
         </form>
         <div class="msg">
-            {{#if this.createGroupError}}
-              <div class="error-message">{{this.createGroupError}}</div>
-            {{/if}}
+          {{#if this.createGroupError}}
+            <div class="error-message">{{this.createGroupError}}</div>
+          {{/if}}
         </div>
       </div>
     </div>
@@ -110,14 +100,55 @@
           <button type="submit">Add User</button>
         </form>
         <div class="msg">
-            {{#if this.addUserError}}
-              <div class="error-message">{{this.addUserError}}</div>
-            {{/if}}
-            {{#if this.addUserSuccess}}
-              <div class="success-message">{{this.addUserSuccess}}</div>
-            {{/if}}
+          {{#if this.addUserError}}
+            <div class="error-message">{{this.addUserError}}</div>
+          {{/if}}
+          {{#if this.addUserSuccess}}
+            <div class="success-message">{{this.addUserSuccess}}</div>
+          {{/if}}
         </div>
       </div>
     </div>
   {{/if}}
+
+  {{#if this.isReportPopupVisible}}
+    <div class="popup">
+      <div class="popup-content">
+        <button class="close-button" type="button" {{on "click" this.closeReportPopup}}>X</button>
+        <h2>Group Creation Report</h2>
+        <canvas id="groupReportChart"></canvas>
+      </div>
+    </div>
+  {{/if}}
+    {{#if this.isGroupDetailsPopupVisible}}
+      <div class="popup">
+        <div class="popup-content">
+          <button class="close-button" type="button" {{on "click" this.closeGroupDetailsPopup}}>X</button>
+          <h2>Groups</h2>
+          <ul>
+            {{#each this.groupDetails as |group|}}
+              <li>
+                <p class="group-name" {{on "click" (fn this.showGroupDetails group.name)}}>{{group.name}}</p>
+              </li>
+            {{/each}}
+          </ul>
+        </div>
+      </div>
+    {{/if}}
+
+    {{#if this.selectedGroup}}
+      <div class="popup">
+        <div class="popup-content">
+          <button class="close-button" type="button" {{on "click" this.closePopup}}>X</button>
+          <p>
+            <strong>Group Created On:</strong>
+            <i>{{this.selectedGroup.whenCreated}}</i>
+          </p>
+          <p>
+            <strong>Modified On:</strong>
+            <i>{{if this.selectedGroup.whenChanged this.selectedGroup.whenChanged ""}}</i>
+          </p>
+        </div>
+      </div>
+    {{/if}}
 </div>

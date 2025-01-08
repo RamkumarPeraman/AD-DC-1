@@ -72,27 +72,24 @@ string getLDAPTimeString(time_t rawtime) {
     strftime(buffer, sizeof(buffer), "%Y%m%d%H%M%S.0Z", timeinfo);
     return string(buffer);
 }
-// Function to parse the date and time string
-bool parseTime(const char* str, struct tm& tm) {
+    bool parseTime(const char* str, struct tm& tm) {
     return sscanf(str, "%4d%2d%2d%2d%2d%2d",
                   &tm.tm_year, &tm.tm_mon, &tm.tm_mday,
                   &tm.tm_hour, &tm.tm_min, &tm.tm_sec) == 6;
 }
 
-// Function to get the last modification time
 time_t getLastModificationTime(LDAP* ld, LDAPMessage* entry) {
     BerElement* ber;
     struct berval** values = ldap_get_values_len(ld, entry, "modifyTimestamp");
     if (values == NULL) {
-        return 0; // Handle error: No modification timestamp found
+        return 0;
     }
 
     struct tm tm;
     memset(&tm, 0, sizeof(struct tm));
-    tm.tm_isdst = -1; // Not using daylight saving time
+    tm.tm_isdst = -1;
 
     if (parseTime(values[0]->bv_val, tm)) {
-        // Adjust year and month values
         tm.tm_year -= 1900;
         tm.tm_mon -= 1;
         time_t result = mktime(&tm);
@@ -177,8 +174,6 @@ void fetchUserData(const char* base_dn, const char* filter) {
     } else {
         combinedFilter = string(filter);
     }
-
-    // Include "whenCreated" in the list of attributes to fetch
     const char* user_attributes[] = {"displayName", "description", "whenChanged", "whenCreated", NULL};
 
     userData += "[";
@@ -186,11 +181,10 @@ void fetchUserData(const char* base_dn, const char* filter) {
 
     if (!userData.empty() && !servletSend) {
         if (userData.back() == ',') {
-            userData.pop_back(); // Remove trailing comma
+            userData.pop_back(); 
         }
         userData += "]";
 
-        // Create final JSON with all user data and send to the servlet
         string finalData = "{\"type\": \"User\", \"Users\": " + userData + "}";
         sendDataToServlet(URL + "/UserDataServlet", finalData);
 
@@ -246,92 +240,27 @@ void fetchGroupData(const char* base_dn) {
     dataTraverse(base_dn, combinedFilter.c_str(), group_attributes, processGroupEntry);
 }
 
-// void processComputerEntry(LDAP* ld, LDAPMessage* entry) {
-//      string computerName, computerDescription;
-//     struct berval** values = ldap_get_values_len(ld, entry, "cn");
-//     dataAddToVal(values, computerName);
-//     values = ldap_get_values_len(ld, entry, "description");
-//     dataAddToVal(values, computerDescription);    
-//     if (!computerName.empty() && !computerDescription.empty()) {
-//          string computerPostData = "{\"computerName\":\"" + computerName + "\", \"description\":\"" + computerDescription + "\"},";
-//         computerData += computerPostData;
-//         servletSend = false;
-//     }
-// }
-// // Function to fetch computer data from LDAP
-// void fetchComputerData(const char* base_dn) {
-//      string combinedFilter;
-//     if (!initialFetch) {
-//          string timeFilter = "(whenChanged>=" + getLDAPTimeString(lastCheckedTime) + ")";
-//         combinedFilter = "(&(objectClass=computer)" + timeFilter + ")";
-//     } else {
-//         combinedFilter = "(objectClass=computer)";
-//     }
-//     const char* computer_attributes[] = {"cn", "description", "whenChanged", NULL};
-//         computerData += "[";
-//         dataTraverse(base_dn, combinedFilter.c_str(), computer_attributes, processComputerEntry);
-//         if (!computerData.empty() && !servletSend) {
-//         if (computerData.back() == ',') {
-//             computerData.pop_back();  
-//         }
-//         computerData += "]";
-//         string finalData = "{\"type\": \"computer\", \"computers\": " + computerData + "}";
-//         sendDataToServlet(URL + "/ComputerDataServlet", finalData);
-        
-//         //  cout << "-------------------------------------------------------" <<  endl;
-//         //  cout << "Computer data sent to ComputerDataServlet: " <<  endl << finalData <<  endl;
-//         servletSend = true;
-//         computerData = "";
-//     }
-// }
-
-// string convertToIndianFormat(time_t rawTime) {
-//     // Adjust to IST (UTC +5:30)
-//     struct tm* timeInfo = localtime(&rawTime); // Get local time (UTC)
-//     timeInfo->tm_hour += 5;  // Add 5 hours for IST
-//     timeInfo->tm_min += 30;  // Add 30 minutes for IST
-
-//     // Adjust for overflow in minutes or hours if necessary
-//     if (timeInfo->tm_min >= 60) {
-//         timeInfo->tm_min -= 60;
-//         timeInfo->tm_hour += 1;
-//     }
-//     if (timeInfo->tm_hour >= 24) {
-//         timeInfo->tm_hour -= 24; // Wrap around to the next day
-//     }
-
-//     char buffer[20];
-//     strftime(buffer, sizeof(buffer), "%d-%m-%Y %H:%M:%S", timeInfo); // Format date
-//     return string(buffer);
-// }
-
 void processComputerEntry(LDAP* ld, LDAPMessage* entry) {
     string computerName, computerDescription, whenCreatedIST;
-    
-    // Fetch 'cn' attribute
-    struct berval** values = ldap_get_values_len(ld, entry, "cn");
+        struct berval** values = ldap_get_values_len(ld, entry, "cn");
     dataAddToVal(values, computerName);
 
-    // Fetch 'description' attribute
     values = ldap_get_values_len(ld, entry, "description");
     dataAddToVal(values, computerDescription);
 
-    // Fetch 'whenCreated' attribute and convert it to IST
     values = ldap_get_values_len(ld, entry, "whenCreated");
     if (values && values[0]) {
         string whenCreatedUTC(values[0]->bv_val, values[0]->bv_len);
 
-        // Remove fractional seconds (if present) from the string
         size_t dotPos = whenCreatedUTC.find('.');
         if (dotPos != string::npos) {
             whenCreatedUTC = whenCreatedUTC.substr(0, dotPos) + "Z";
         }
 
         struct tm timeInfo = {0};
-        // Parse the cleaned-up UTC string
         if (strptime(whenCreatedUTC.c_str(), "%Y%m%d%H%M%SZ", &timeInfo) != NULL) {
-            time_t rawTime = mktime(&timeInfo); // Convert to time_t (UTC)
-            whenCreatedIST = convertToIndianFormat(rawTime); // Convert to IST
+            time_t rawTime = mktime(&timeInfo);
+            whenCreatedIST = convertToIndianFormat(rawTime); 
         } else {
             cout << "Failed to parse whenCreated after cleanup: " << whenCreatedUTC << endl;
         }
@@ -340,8 +269,6 @@ void processComputerEntry(LDAP* ld, LDAPMessage* entry) {
     } else {
         cout << "whenCreated attribute not found for: " << computerName << endl;
     }
-
-    // Debug: Print the converted IST time
     cout << "Computer: " << computerName << ", Created (IST): " << whenCreatedIST << endl;
 
     // Add to data if attributes are not empty
@@ -489,11 +416,10 @@ void processDeletedObjectEntry(LDAP* ld, LDAPMessage* entry) {
     string dn = ldap_get_dn(ld, entry);
     if (initialFetch || (dltLastModTime > lastCheckedTime && processedEntries.find(dn) == processedEntries.end())) {
         if (!objectType.empty() && !objectName.empty() && !objectDescription.empty()) {
-            // Trim the "DEL" marker and UUID from the objectName
             int len = objectName.size();
-            if (len > 41) {  // Ensure the length is sufficient to trim
+            if (len > 41) {  
                 string objName = objectName.substr(0, len - 41);
-                objectName = objName;  // Update objectName to trimmed name
+                objectName = objName;  
             }
 
             // Construct JSON data for a deleted object entry
@@ -596,14 +522,14 @@ void fetchOu(){
 }
 int main(){
     ldapBind(); 
-    fetchOu();
+    // fetchOu();
     while(true){
-        fetchDeletedObjects(dlt_base_dn);
+        // fetchDeletedObjects(dlt_base_dn);
+        // fetchFromComputers(comp_base_dn);
         fetchFromUsers(user_base_dn);
-        fetchFromComputers(comp_base_dn);
-        for(string ou_base_dn : ou_names){
-            fetchFromOU(ou_base_dn.c_str());
-        }
+        // for(string ou_base_dn : ou_names){
+        //     fetchFromOU(ou_base_dn.c_str());
+        // }
         lastCheckedTime = time(nullptr);
         initialFetch = false;        
         sleep(120);

@@ -16,6 +16,10 @@ export default class UsersController extends Controller {
   @tracked telephoneNumber = '';
   @tracked isNewUserPopupVisible = false;
   @tracked createUserError = '';
+  @tracked isReportPopupVisible = false;
+  @tracked userCreationData = {};
+  @tracked userDetails = [];
+  @tracked isUserDetailsPopupVisible = false;
 
   constructor() {
     super(...arguments);
@@ -25,7 +29,7 @@ export default class UsersController extends Controller {
   @action
   async fetchUsers() {
     try {
-      console.log('Fetching users...');
+      console.log('Fetching users with search:', this.searchQuery, 'and sort:', this.sortBy);
       const response = await fetch(
         `http://localhost:8080/backend_war_exploded/UserServlet?search=${this.searchQuery}&sortBy=${this.sortBy}`,
       );
@@ -34,8 +38,8 @@ export default class UsersController extends Controller {
       }
       const data = await response.json();
       console.log('Fetched users:', data);
-      this.users = data;
-      this.totalCount = data.length;
+      this.users = data.users || [];
+      this.totalCount = data.totalCount || 0;
     } catch (error) {
       console.error('Error fetching users:', error);
       this.users = [];
@@ -129,14 +133,7 @@ export default class UsersController extends Controller {
   async createUser(event) {
     event.preventDefault();
 
-    if (
-      !this.firstName ||
-      !this.lastName ||
-      !this.displayName ||
-      !this.mail ||
-      !this.description ||
-      !this.telephoneNumber
-    ) {
+    if (!this.firstName || !this.lastName || !this.displayName || !this.mail || !this.description || !this.telephoneNumber) {
       alert('All fields are required!');
       return;
     }
@@ -206,5 +203,111 @@ export default class UsersController extends Controller {
       console.error('Error:', error);
       alert('Failed to delete user!');
     }
+  }
+
+  @action
+  openReportPopup() {
+    this.isReportPopupVisible = true;
+    this.fetchUserCreationData();
+  }
+
+  @action
+  closeReportPopup() {
+    this.isReportPopupVisible = false;
+  }
+
+  @action
+  async fetchUserCreationData() {
+    const url = `http://localhost:8080/backend_war_exploded/UserCreationReportServlet`;
+
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch user creation data: ${response.statusText}`);
+      }
+      const data = await response.json();
+      console.log('User creation data:', data);
+      this.userCreationData = data.data;
+      this.displayUserReportChart();
+    } catch (error) {
+      console.error('Error fetching user creation data:', error);
+    }
+  }
+
+  displayUserReportChart() {
+    const ctx = document.getElementById('userReportChart').getContext('2d');
+    const labels = Object.keys(this.userCreationData);
+    const data = Object.values(this.userCreationData).map(item => item.count);
+
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Users Created',
+          data: data,
+          borderColor: 'rgba(75, 192, 192, 1)',
+          borderWidth: 2,
+          fill: false
+        }]
+      },
+      options: {
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: 'Days'
+            }
+          },
+          y: {
+            title: {
+              display: true,
+              text: 'Count'
+            }
+          }
+        },
+        onClick: (event, elements) => {
+          if (elements.length > 0) {
+            const index = elements[0].index;
+            const day = labels[index];
+            this.showUsersForDay(day);
+          }
+        },
+        tooltips: {
+          callbacks: {
+            label: (tooltipItem) => {
+              const day = labels[tooltipItem.index];
+              const count = data[tooltipItem.index];
+              return `Date: ${day}\nCount: ${count}`;
+            }
+          }
+        }
+      }
+    });
+  }
+
+  @action
+  async showUsersForDay(day) {
+    try {
+      const response = await fetch(
+        `http://localhost:8080/backend_war_exploded/FetchUserNamesForDayServlet?day=${day}`,
+      );
+      if (!response.ok) {
+        throw new Error(
+          `Failed to fetch users for the day: ${response.statusText}`,
+        );
+      }
+      const userDetails = await response.json();
+      this.userDetails = userDetails.users;
+      this.isUserDetailsPopupVisible = true;
+    } catch (error) {
+      console.error('Error fetching users for the day:', error);
+    }
+  }
+
+  @action
+  closeUserDetailsPopup() {
+    this.isUserDetailsPopupVisible = false;
+    this.userDetails = [];
   }
 }

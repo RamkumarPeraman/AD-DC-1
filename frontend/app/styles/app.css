@@ -278,7 +278,25 @@ label {
   font-size: 16px;
   color: #030303;
   text-align: center;
-  margin: -0% 0 3% 35%;
+  margin: -0% 0 3% 27%;
+  border-radius: 4px;
+  cursor: pointer;
+  transition:
+    background-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.report-button{
+  background-color: #00da53;
+  border: 2px solid #b4e0b7;
+  width: 10%;
+  font-family: "Courier New", Courier, monospace;
+  font-weight: bold;
+  padding: 10px 15px;
+  font-size: 16px;
+  color: #030303;
+  text-align: center;
+  margin: -0% 0 3% 0%;
   border-radius: 4px;
   cursor: pointer;
   transition:
@@ -386,3 +404,4 @@ button[type="submit"]:active {
   margin-top: -12.5%;
   position: absolute;
 }
+

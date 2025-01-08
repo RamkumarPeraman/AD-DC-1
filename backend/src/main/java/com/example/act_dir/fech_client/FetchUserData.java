@@ -22,16 +22,19 @@ public class FetchUserData extends HttpServlet {
             response.setStatus(HttpServletResponse.SC_OK);
             return;
         }
-        String userName = request.getParameter("userName");
+
+        String displayName = request.getParameter("displayName");
+        System.out.println("Received request for user: " + displayName); // Log received displayName
+
         response.setContentType("application/json");
-        String userDetails = fetchUserDetails(userName);
+        String userDetails = fetchUserDetails(displayName);
         response.getWriter().write(userDetails);
     }
 
-    private String fetchUserDetails(String userName) {
+    private String fetchUserDetails(String displayName) {
         String result = "{}";
         try {
-            ProcessBuilder processBuilder = new ProcessBuilder("/home/ram-pt7749/Music/prom/agent/fetch/userFetch", userName);
+            ProcessBuilder processBuilder = new ProcessBuilder("/home/ram-pt7749/Music/prom/agent/fetch/userFetch", displayName);
             processBuilder.redirectErrorStream(true);
             Process process = processBuilder.start();
 
@@ -44,6 +47,7 @@ public class FetchUserData extends HttpServlet {
             int exitCode = process.waitFor();
             if (exitCode == 0) {
                 String fullOutput = output.toString();
+                System.out.println("Fetched user details: " + fullOutput); // Log fetched details
                 // Extract JSON part from the output
                 int jsonStartIndex = fullOutput.indexOf("{");
                 if (jsonStartIndex != -1) {

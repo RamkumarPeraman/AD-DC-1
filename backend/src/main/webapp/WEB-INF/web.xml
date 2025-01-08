@@ -216,4 +216,22 @@
         <url-pattern>/DeleteUserServlet/*</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>GroupCreationReportServlet</servlet-name>
+        <servlet-class>com.example.act_dir.graph.GroupCreationReportServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>GroupCreationReportServlet</servlet-name>
+        <url-pattern>/GroupCreationReportServlet/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>FetchGroupNamesForDayServlet</servlet-name>
+        <servlet-class>com.example.act_dir.graph.FetchGroupNamesForDayServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>FetchGroupNamesForDayServlet</servlet-name>
+        <url-pattern>/FetchGroupNamesForDayServlet/*</url-pattern>
+    </servlet-mapping>
+
 </web-app>

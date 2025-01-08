@@ -13,11 +13,15 @@ export default class GroupController extends Controller {
   @tracked newGroupMail = '';
   @tracked isNewGroupPopupVisible = false;
   @tracked isAddUserPopupVisible = false;
+  @tracked isReportPopupVisible = false;
+  @tracked isGroupDetailsPopupVisible = false;
   @tracked userName = '';
   @tracked groupName = '';
   @tracked addUserError = '';
   @tracked addUserSuccess = '';
   @tracked createGroupError = '';
+  @tracked groupCreationData = {};
+  @tracked groupDetails = [];
 
   constructor() {
     super(...arguments);
@@ -47,26 +51,142 @@ export default class GroupController extends Controller {
   }
 
   @action
-  async showGroupDetails(groupName) {
+  async fetchGroupCreationData() {
+    const url = `http://localhost:8080/backend_war_exploded/GroupCreationReportServlet`;
+
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch group creation data: ${response.statusText}`);
+      }
+      const data = await response.json();
+      // console.log('Group creation data:', data);
+      this.groupCreationData = data.data;
+      this.displayGroupReportChart();
+    } catch (error) {
+      console.error('Error fetching group creation data:', error);
+    }
+  }
+
+  @action
+  openReportPopup() {
+    this.isReportPopupVisible = true;
+    this.fetchGroupCreationData();
+  }
+
+  @action
+  closeReportPopup() {
+    this.isReportPopupVisible = false;
+  }
+
+  @action
+  async showGroupsForDay(day) {
+    console.log('Fetching groups for the day:', day);
     try {
       const response = await fetch(
-        `http://localhost:8080/backend_war_exploded/FetchGroupData?groupName=${groupName}`,
+        `http://localhost:8080/backend_war_exploded/FetchGroupNamesForDayServlet?day=${day}`,
       );
       if (!response.ok) {
         throw new Error(
-          `Failed to fetch group details: ${response.statusText}`,
+          `Failed to fetch groups for the day: ${response.statusText}`,
         );
       }
-      this.selectedGroup = await response.json();
+      const groupDetails = await response.json();
+      this.groupDetails = groupDetails.groups;
+      this.isGroupDetailsPopupVisible = true;
+    } catch (error) {
+      console.error('Error fetching groups for the day:', error);
+    }
+  }
+
+  @action
+  closeGroupDetailsPopup() {
+    this.isGroupDetailsPopupVisible = false;
+    this.groupDetails = [];
+  }
+
+  @action
+  async showGroupDetails(groupName) {
+    try {
+      const response = await fetch(`http://localhost:8080/backend_war_exploded/FetchGroupData?groupName=${groupName}`);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch group details: ${response.statusText}`);
+      }
+      const group = await response.json();
+      // console.log(group);
+      this.selectedGroup = {
+        name: group.name,
+        description: group.description || '',
+        mail: group.mail || '',
+        whenCreated : group.whenCreated || '',
+        whenChanged : group.whenChanged || '',
+      };
     } catch (error) {
       console.error('Error fetching group details:', error);
-      this.selectedGroup = null;
     }
+    console.log('hi',this.selectedGroup); 
   }
 
   @action
   closePopup() {
     this.selectedGroup = null;
+  }
+
+  displayGroupReportChart(){
+    const ctx = document.getElementById('groupReportChart').getContext('2d');
+    const labels = Object.keys(this.groupCreationData);
+    const data = Object.values(this.groupCreationData).map(item => item.count);
+
+    new Chart(ctx,{
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Groups Created',
+          data: data,
+          borderColor: 'rgba(75, 192, 192, 1)',
+          borderWidth: 2,
+          fill: false
+        }]
+      },
+      options: {
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: 'Days'
+            }
+          },
+          y: {
+            title: {
+              display: true,
+              text: 'Count'
+            }
+          }
+        },
+        onClick: (event, elements) => {
+          console.log('Clicked on:', elements);
+          console.log('Labels:', labels);
+          console.log('Data:', data);
+          if (elements.length > 0) {
+            const index = elements[0]._index;
+            console.log('Index:', index);
+            const day = labels[index];
+            console.log('Day:', day);
+            this.showGroupsForDay(day);
+          }
+        },
+        tooltips: {
+          callbacks: {
+            label: (tooltipItem) => {
+              const day = labels[tooltipItem.index];
+              const count = data[tooltipItem.index];
+              return `Date: ${day}\nCount: ${count}`;
+            }
+          }
+        }
+      }
+    });
   }
 
   @action
